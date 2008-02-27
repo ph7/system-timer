@@ -1,0 +1,22 @@
+Not useful yet. Work in progress. 
+
+install timer
+-------------
+` 1. Block SIG_ALRM + save old mask
+` 2. save old handler (and enable SIG_ALRM)
+` 3. Invoke ruby function to setup trap block and keep old Ruby handler
+` 4. Install new timer and save old timer
+` 5. Unblock SIG_ALRM
+  
+cleanup timer (cancel/restore)
+--------------------
+` 1. Block SIG_ALRM
+` 2. Restore old Ruby handler
+` 3. Reinstall the old handler 
+`  4. Restore the old timer 
+` 5. Restore SIG_ALRM BLOCKING status based on saved old mask
+
+
+Error Handling
+--------------
+Write it properly. Recovery 
