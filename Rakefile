@@ -64,8 +64,11 @@ specification = Gem::Specification.new do |s|
     s.autorequire = "system_timer_stub"
   else
     s.platform = Gem::Platform::RUBY
-    s.files = ["ext/system_timer/system_timer_native.c", "ext/system_timer/extconf.rb"] + 
-              FileList['lib/**/*.rb'] + FileList['test/**/*.rb']
+    s.files = [ "COPYING", "LICENSE", "ChangeLog"] + 
+                FileList['ext/**/*.c'] + 
+                FileList['ext/**/*.rb'] + 
+                FileList['lib/**/*.rb'] + 
+                FileList['test/**/*.rb']
     s.autorequire = "system_timer"
     s.extensions = ["ext/system_timer/extconf.rb"]
   end  
