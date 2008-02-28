@@ -1,9 +1,29 @@
 require 'rubygems'
 require 'timeout'
 
+# Timer based on underlying SIGALRM system timers, is a
+# solution to Ruby processes which hang beyond the time limit when accessing
+# external resources. This is useful when timeout.rb, which relies on green
+# threads, does not work consistently.
+#
+# == Usage
+#
+#   require 'systemtimer'
+#
+#   SystemTimer.timeout_after(5) do
+#
+#     # Something that should be interrupted if it takes too much time...
+#     # ... even if blocked on a system call!
+#
+#   end
+#
 module SystemTimer 
  class << self
 
+   
+   # Executes the method's block. If the block execution terminates before 
+   # +seconds+ seconds has passed, it returns true. If not, it terminates 
+   # the execution and raises a +Timeout::Error+.
    def timeout_after(seconds)
      install_timer(seconds)
      return yield

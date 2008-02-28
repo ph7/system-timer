@@ -1,22 +1,50 @@
-Not useful yet. Work in progress. 
-
-install timer
--------------
-` 1. Block SIG_ALRM + save old mask
-` 2. save old handler (and enable SIG_ALRM)
-` 3. Invoke ruby function to setup trap block and keep old Ruby handler
-` 4. Install new timer and save old timer
-` 5. Unblock SIG_ALRM
-  
-cleanup timer (cancel/restore)
---------------------
-` 1. Block SIG_ALRM
-` 2. Restore old Ruby handler
-` 3. Reinstall the old handler 
-`  4. Restore the old timer 
-` 5. Restore SIG_ALRM BLOCKING status based on saved old mask
-
-
-Error Handling
---------------
-Write it properly. Recovery 
+# = system_timer.rb
+#
+# == Synopsis
+#
+# System Timer, a timer based on underlying SIGALRM system timers, is a
+# solution to Ruby processes which hang beyond the time limit when accessing
+# external resources. This is useful when timeout.rb, which relies on green
+# threads, does not work consistently.
+#
+# == Usage
+#
+#   require 'systemtimer'
+#
+#   SystemTimer.timeout_after(5) do
+#
+#     # Something that should be interrupted if it takes too much time...
+#     # ... even if blocked on a system call!
+#
+#   end
+#
+# == Authors
+#
+# * David Vollbracht <https://rubyforge.org/users/qxjit>
+# * Philippe Hanrigou <http:/ph7spot.com>
+#    
+# == Copyright
+#
+# Copyright:: (C) 2008  David Vollbracht & Philippe Hanrigou
+#
+# == Description
+#
+# While deploying Rails application in production our team discovered
+# that some web service call would not timeout way beyond their defined
+# limit, progressively freezing our Mongrel cluster until we restarted
+# the servers. A closer analysis revealed that the native thread in charge of
+# of the web service call was never scheduled, "stucked" on the service
+# call. As it turn out the timeout library bundled with Ruby 1.8 (MRI)
+# relies on green-threads to perform its magic... so the magic had no chance
+# to happen in this scenario.
+#
+# Based on an original idea by Kurtis Seebaldt <http://kseebaldt.blogspot.com>,
+# we implemented another timeout implementation based on system timers
+# (the +SIGALRM+ POSIX signal), to guarantee proper timeout behavior even
+# when crossing-boundaries and accessing system/external resources.
+# Special care has been taken to interfere as little as possible with other
+# processes that also rely on +SIGALRM+, especially MySQL.
+#
+# This implementation is not intended to be drop-in replacement to
+# timeout.rb, just a way to wrap sensitive call to system resources.   
+#
