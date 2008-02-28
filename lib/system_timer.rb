@@ -19,7 +19,6 @@ require 'timeout'
 #
 module SystemTimer 
  class << self
-
    
    # Executes the method's block. If the block execution terminates before 
    # +seconds+ seconds has passed, it returns true. If not, it terminates 
@@ -33,7 +32,7 @@ module SystemTimer
 
    protected
    
-   def install_ruby_sigalrm_handler
+   def install_ruby_sigalrm_handler                 #:nodoc:
      timed_thread = Thread.current  # Ruby signals are always delivered to main thread by default.
      @original_ruby_sigalrm_handler = trap('SIGALRM') do
         log_timeout_received(timed_thread) if SystemTimer.debug_enabled?
@@ -41,21 +40,21 @@ module SystemTimer
       end
    end
   
-   def restore_original_ruby_sigalrm_handler
+   def restore_original_ruby_sigalrm_handler        #:nodoc:
      trap('SIGALRM', original_ruby_sigalrm_handler || 'DEFAULT')
    ensure
      reset_original_ruby_sigalrm_handler
    end
    
-   def original_ruby_sigalrm_handler
+   def original_ruby_sigalrm_handler               #:nodoc:
      @original_ruby_sigalrm_handler
    end
  
-   def reset_original_ruby_sigalrm_handler
+   def reset_original_ruby_sigalrm_handler         #:nodoc:
      @original_ruby_sigalrm_handler = nil
    end
 
-   def log_timeout_received(timed_thread)
+   def log_timeout_received(timed_thread)          #:nodoc:
      puts <<-EOS
        install_ruby_sigalrm_handler: Got Timeout in #{Thread.current}
            Main thread  : #{Thread.main}
@@ -64,6 +63,7 @@ module SystemTimer
      EOS
    end
  end
+
 end
 
 require 'system_timer_native'

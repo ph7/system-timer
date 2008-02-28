@@ -64,7 +64,8 @@ specification = Gem::Specification.new do |s|
     s.autorequire = "system_timer_stub"
   else
     s.platform = Gem::Platform::RUBY
-    s.files = ["ext/system_timer/system_timer_native.c", "ext/system_timer/extconf.rb"] + FileList['lib/**/*.rb'] + FileList['test/**/*.rb']
+    s.files = ["ext/system_timer/system_timer_native.c", "ext/system_timer/extconf.rb"] + 
+              FileList['lib/**/*.rb'] + FileList['test/**/*.rb']
     s.autorequire = "system_timer"
     s.extensions = ["ext/system_timer/extconf.rb"]
   end  
@@ -78,4 +79,9 @@ end
 Rake::GemPackageTask.new(specification) do |package|
 	 package.need_zip = false
 	 package.need_tar = false
+end
+
+desc "Publish RDoc on Rubyforge website"
+task :publish_rdoc => :rdoc do
+  sh "scp -r rdoc/* #{ENV['USER']}@rubyforge.org:/var/www/gforge-projects/systemtimer"
 end
