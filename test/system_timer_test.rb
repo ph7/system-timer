@@ -111,5 +111,11 @@ functional_tests do
       SystemTimer.disable_debug
     end 
   end
-    
+  
+  test "timeout offers an API fully compatible with timeout.rb" do
+    assert_raises(Timeout::Error) do
+      SystemTimer.timeout(1) {sleep 5}
+    end
+  end
+  
 end

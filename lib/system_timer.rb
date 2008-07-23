@@ -30,6 +30,9 @@ module SystemTimer
      cleanup_timer
    end
 
+   # Backward compatibility with timeout.rb
+   alias timeout timeout_after 
+   
    protected
    
    def install_ruby_sigalrm_handler                 #:nodoc:
