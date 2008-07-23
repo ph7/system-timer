@@ -5,6 +5,11 @@ solution to Ruby processes which hang beyond the time limit when accessing
 external resources. This is useful when timeout.rb, which relies on green
 threads, does not work consistently.
 
+More background on:
+
+* http://ph7spot.com/articles/system_timer 
+* http://davidvollbracht.com/2008/6/2/30-days-of-teach-day-1-systemtimer
+
 == Usage
 
   require 'systemtimer'
@@ -58,6 +63,8 @@ in particular MySQL.
 This implementation is not intended to be drop-in replacement to
 timeout.rb, just a way to wrap sensitive call to system resources.   
 
+You can find more details on SystemTimer and how to use it 
+at http://ph7spot.com/articles/system_timer 
 
 == License
 
