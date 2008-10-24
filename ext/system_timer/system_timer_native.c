@@ -35,23 +35,23 @@ static VALUE install_timer(VALUE self, VALUE seconds)
         return Qnil;
     }
     clear_pending_sigalrm_for_ruby_threads();
-    log_debug("install_timer: Succesfully blocked SIG_ALRM at O.S. level");
+    log_debug("install_timer: Successfully blocked SIG_ALRM at O.S. level");
 	
    /*
     * Save previous signal handler.
     */
-	original_signal_handler.sa_handler = NULL;
+    original_signal_handler.sa_handler = NULL;
     if (0 != sigaction(SIGALRM, NULL, &original_signal_handler)) {
         log_error("install_timer: Could not save existing handler for SIG_ALRM", DISPLAY_ERRNO);
         restore_original_sigalrm_mask_when_blocked();
         return Qnil;
     }
-	log_debug("install_timer: Succesfully saved existing SIG_ALRM handler");
+    log_debug("install_timer: Successfully saved existing SIG_ALRM handler");
 
-	/*
-	 * Install Ruby Level SIG_ALRM handler
-	 */
-	install_ruby_sigalrm_handler(self);
+	 /*
+	  * Install Ruby Level SIG_ALRM handler
+	  */
+    install_ruby_sigalrm_handler(self);
 
     /*
      * Set new real time interval timer and save the original if any.
@@ -64,7 +64,7 @@ static VALUE install_timer(VALUE self, VALUE seconds)
         restore_original_sigalrm_mask_when_blocked();
         return Qnil;
     }
-	log_debug("install_timer: Successfully installed timer");
+    log_debug("install_timer: Successfully installed timer");
 
     /*
      * Unblock SIG_ALRM
@@ -75,7 +75,7 @@ static VALUE install_timer(VALUE self, VALUE seconds)
         restore_original_ruby_sigalrm_handler(self);
         restore_original_sigalrm_mask_when_blocked();		
     }
-    log_debug("install_timer: Succesfully unblocked SIG_ALRM.");
+    log_debug("install_timer: Successfully unblocked SIG_ALRM.");
 
     return Qnil;
 }
@@ -98,8 +98,8 @@ static VALUE cleanup_timer(VALUE self, VALUE seconds)
 	
     if (original_signal_handler.sa_handler == NULL) {
         log_error("cleanup_timer: Previous SIG_ALRM handler not initialized!", DO_NOT_DISPLAY_ERRNO);
-	} else if (0 == sigaction(SIGALRM, &original_signal_handler, NULL)) {
-        log_debug("cleanup_timer: Succesfully restored previous handler for SIG_ALRM");
+    } else if (0 == sigaction(SIGALRM, &original_signal_handler, NULL)) {
+        log_debug("cleanup_timer: Successfully restored previous handler for SIG_ALRM");
     } else {
         log_error("cleanup_timer: Could not restore previous handler for SIG_ALRM", DISPLAY_ERRNO);
     }
@@ -118,10 +118,10 @@ static VALUE cleanup_timer(VALUE self, VALUE seconds)
  *
  */
 static void restore_original_timer_interval() {
-    if (0 != setitimer (ITIMER_REAL, &original_timer_interval, NULL)) {
-        log_error("install_timer: Could not restore original timer", DISPLAY_ERRNO);
+    if (0 != setitimer(ITIMER_REAL, &original_timer_interval, NULL)) {
+        log_error("cleanup_timer: Could not restore original timer", DISPLAY_ERRNO);
     }
-    log_debug("install_timer: Successfully restored timer");	
+    log_debug("cleanup_timer: Successfully restored timer");
 }
 
 static void restore_original_sigalrm_mask_when_blocked() 
@@ -186,7 +186,7 @@ static void log_error(char* message, int display_errno)
 static void clear_pending_sigalrm_for_ruby_threads()
 {
     CHECK_INTS;
-    log_debug("Succesfully triggered all pending signals at Green Thread level");
+    log_debug("Successfully triggered all pending signals at Green Thread level");
 }
 
 static void init_sigalarm_mask() 
