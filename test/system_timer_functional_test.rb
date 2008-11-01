@@ -1,27 +1,17 @@
- $: << File.dirname(__FILE__) + '/../lib'
- $: << File.dirname(__FILE__) + '/../ext/system_timer'
- $: << File.dirname(__FILE__) + "/../../../vendor/gems/dust-0.1.4/lib"
- $: << File.dirname(__FILE__) + "/../../../vendor/gems/mocha-0.5.3/lib"
-require 'test/unit'
-require 'system_timer'
-require 'dust'
-require 'mocha'
-require 'stringio'
-require "open-uri"
+require File.dirname(__FILE__) + '/test_helper'
 
 functional_tests do
   
   ERROR_MARGIN = 2
 
-  # SystemTimer.enable_debug
-        
   test "original_ruby_sigalrm_handler is nil after reset" do
     SystemTimer.send(:install_ruby_sigalrm_handler)
     SystemTimer.send(:reset_original_ruby_sigalrm_handler)
     assert_nil SystemTimer.send(:original_ruby_sigalrm_handler)
   end  
   
-  test "original_ruby_sigalrm_handler is set to existing handler after install_ruby_sigalrm_handler" do
+  test "original_ruby_sigalrm_handler is set to existing handler after " +
+       "install_ruby_sigalrm_handler when save_previous_handler is true" do
     SystemTimer.expects(:trap).with('SIGALRM').returns(:an_existing_handler)
     SystemTimer.send(:install_ruby_sigalrm_handler)
     assert_equal :an_existing_handler, SystemTimer.send(:original_ruby_sigalrm_handler)
@@ -88,8 +78,8 @@ functional_tests do
     begin
       fake_original_ruby_handler = proc {}
       initial_ruby_handler = trap "SIGALRM", fake_original_ruby_handler
-      SystemTimer.install_timer(3)
-      SystemTimer.cleanup_timer
+      SystemTimer.install_first_timer 3
+      SystemTimer.restore_original_configuration
       assert_equal fake_original_ruby_handler, trap("SIGALRM", "IGNORE")    
     ensure  # avoid interfering with test infrastructure
       trap("SIGALRM", initial_ruby_handler) if initial_ruby_handler  
@@ -122,10 +112,10 @@ functional_tests do
     end
   end
   
-  test "while exact timeouts cannot be guaranted the timeout should not exceed twiced the provided timeout" do
+  test "while exact timeouts cannot be guaranted the timeout should not exceed the provided timeout by 2 seconds" do
     start = Time.now
     begin
-      SystemTimer.timeout_after(1) do 
+      SystemTimer.timeout_after(2) do 
         open "http://www.invalid.domain.comz"
       end
       raise "should never get there"
@@ -133,17 +123,18 @@ functional_tests do
     rescue Timeout::Error => e
     end
     elapsed = Time.now - start
-    assert elapsed < 2
+    assert elapsed < 4, "Got #{elapsed} s, expected 2, at most 4"
   end
+  
   
   test "timeout are enforced on system calls" do
     assert_timeout_within(3) do
       SystemTimer.timeout(3) do
-         sleep 60
+         sleep 30
       end
     end
   end
-
+  
   test "timeout work when spawning a different thread" do
     assert_timeout_within(3) do
       thread = Thread.new do
@@ -155,12 +146,66 @@ functional_tests do
     end
   end
   
+  test "can set multiple serial timers" do
+    10.times do
+      assert_timeout_within(3) do
+        SystemTimer.timeout(3) do
+           sleep 60
+        end
+      end
+    end
+  end
+  
+  test "timeout work when setting concurrent timers, the first one " +
+       "expiring before the second one" do
+         
+    first_thread = Thread.new do
+      assert_timeout_within(3) do
+        SystemTimer.timeout(3) do
+           sleep 60
+        end
+      end
+    end
+    second_thread = Thread.new do
+      assert_timeout_within(5) do
+        SystemTimer.timeout(5) do
+           sleep 60
+        end
+      end
+    end
+    first_thread.join
+    second_thread.join
+  end
+
+  test "timeout work when setting concurrent timers, the second one " +
+       "expiring before the first one" do
+         
+    first_thread = Thread.new do
+      assert_timeout_within(20) do
+        SystemTimer.timeout(20) do
+           sleep 60
+        end
+      end
+    end
+    second_thread = Thread.new do
+      assert_timeout_within(3) do
+        SystemTimer.timeout(3) do
+           sleep 60
+        end
+      end
+    end
+    first_thread.join
+    second_thread.join
+  end
+  
   def assert_timeout_within(expected_timeout_in_seconds, &block)
     start = Time.now
     yield
     flunk "Did not timeout as expected!"
   rescue Timeout::Error    
     elapsed = Time.now - start
+    assert elapsed >= expected_timeout_in_seconds, 
+           "Timed out too early, expected #{expected_timeout_in_seconds}, got #{elapsed} s"
     assert elapsed < ERROR_MARGIN * expected_timeout_in_seconds, 
            "Timed out after #{elapsed} seconds, expected #{expected_timeout_in_seconds}"
   end

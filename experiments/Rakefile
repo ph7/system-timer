@@ -1,0 +1,13 @@
+require 'rake/clean'
+
+PROG = "setitimer_process_isolation"
+
+CLEAN.include(PROG)
+
+task :default => PROG
+
+file PROG => "#{PROG}.c" do 
+  sh "gcc -o #{PROG} #{PROG}.c"
+end
+
+

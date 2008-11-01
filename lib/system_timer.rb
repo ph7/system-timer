@@ -1,5 +1,8 @@
 require 'rubygems'
 require 'timeout'
+require 'forwardable'
+require File.dirname(__FILE__) + '/system_timer/thread_timer'
+require File.dirname(__FILE__) + '/system_timer/concurrent_timer_pool'
 
 # Timer based on underlying SIGALRM system timers, is a
 # solution to Ruby processes which hang beyond the time limit when accessing
@@ -17,17 +20,45 @@ require 'timeout'
 #
 #   end
 #
-module SystemTimer 
+module SystemTimer
+
+ # TODO - Race condition for these 2 class instance variables
+ @timer_pool = ConcurrentTimerPool.new
+ @mutex = Mutex.new
+ 
  class << self
+  attr_reader :timer_pool   
    
    # Executes the method's block. If the block execution terminates before 
    # +seconds+ seconds has passed, it returns true. If not, it terminates 
    # the execution and raises a +Timeout::Error+.
    def timeout_after(seconds)
-     install_timer(seconds)
+     new_timer = nil                                      # just for scope
+     @mutex.synchronize do
+       save_original_configuration = timer_pool.empty?
+       new_timer = timer_pool.add_timer seconds
+       next_interval = timer_pool.next_trigger_interval
+       debug "==== Install Timer ==== at #{Time.now.to_i}, next interval: #{next_interval}"
+       if save_original_configuration
+         install_first_timer next_interval
+       else
+         install_next_timer next_interval
+       end
+    end
      return yield
    ensure
-     cleanup_timer
+     @mutex.synchronize do
+       debug "==== Cleanup Timer ==== at #{Time.now.to_i}, #{new_timer} "
+       timer_pool.cancel(new_timer)
+       timer_pool.log_registered_timers if debug_enabled?
+       next_interval = timer_pool.next_trigger_interval
+       debug "Cleanup Timer : next interval #{next_interval.inspect} "
+       if next_interval
+         install_next_timer next_interval
+       else
+         restore_original_configuration          
+       end
+     end
    end
 
    # Backward compatibility with timeout.rb
@@ -35,36 +66,32 @@ module SystemTimer
    
    protected
    
-   def install_ruby_sigalrm_handler                 #:nodoc:
-     timed_thread = Thread.current  # Ruby signals are always delivered to main thread by default.
+   def install_ruby_sigalrm_handler   #:nodoc:
      @original_ruby_sigalrm_handler = trap('SIGALRM') do
-        log_timeout_received(timed_thread) if SystemTimer.debug_enabled?
-        timed_thread.raise Timeout::Error.new("time's up!")
-      end
+       @mutex.synchronize do
+          timer_pool.trigger_next_expired_timer(Time.now.to_i)
+       end
+     end
    end
   
-   def restore_original_ruby_sigalrm_handler        #:nodoc:
+   def restore_original_ruby_sigalrm_handler   #:nodoc:
      trap('SIGALRM', original_ruby_sigalrm_handler || 'DEFAULT')
    ensure
      reset_original_ruby_sigalrm_handler
    end
    
-   def original_ruby_sigalrm_handler               #:nodoc:
+   def original_ruby_sigalrm_handler   #:nodoc:
      @original_ruby_sigalrm_handler
    end
  
-   def reset_original_ruby_sigalrm_handler         #:nodoc:
+   def reset_original_ruby_sigalrm_handler   #:nodoc:
      @original_ruby_sigalrm_handler = nil
    end
 
-   def log_timeout_received(timed_thread)          #:nodoc:
-     puts <<-EOS
-       install_ruby_sigalrm_handler: Got Timeout in #{Thread.current}
-           Main thread  : #{Thread.main}
-           Timed_thread : #{timed_thread}
-           All Threads  : #{Thread.list.inspect}
-     EOS
+   def debug(message)    #:nodoc
+     puts message if debug_enabled?
    end
+     
  end
 
 end
