@@ -19,6 +19,10 @@ module SystemTimer
       registered_timers.delete registered_timer
     end
     
+    def first_timer?
+      registered_timers.size == 1
+    end
+    
     def next_timer
       registered_timers.sort {|x,y| x.trigger_time <=> y.trigger_time}.first
     end

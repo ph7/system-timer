@@ -20,7 +20,7 @@ unit_tests do
     Time.stubs(:now).returns(now)
     SystemTimer.stubs(:restore_original_configuration)
 
-    SystemTimer.expects(:install_first_timer).with(24)
+    SystemTimer.expects(:install_first_timer_and_save_original_configuration).with(24)
     SystemTimer.timeout_after(24) {}    
   end
 
@@ -57,8 +57,9 @@ unit_tests do
     the_timer = stub_everything
     Time.stubs(:now).returns(now)
     SystemTimer.stubs(:restore_original_configuration)
-    SystemTimer.stubs(:install_first_timer)    
+    SystemTimer.stubs(:install_first_timer_and_save_original_configuration)    
     SystemTimer.timer_pool.stubs(:add_timer).returns(the_timer)
+    SystemTimer.timer_pool.stubs(:first_timer?).returns(true)
     
     SystemTimer.timer_pool.expects(:cancel).with(the_timer)
     SystemTimer.timeout_after(24) {}    

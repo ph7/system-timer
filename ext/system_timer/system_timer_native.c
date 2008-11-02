@@ -24,7 +24,7 @@ static void set_itimerval(struct itimerval *, int);
 
 static int debug_enabled = 0;
 
-static VALUE install_first_timer(VALUE self, VALUE seconds)
+static VALUE install_first_timer_and_save_original_configuration(VALUE self, VALUE seconds)
 {
     struct itimerval timer_interval;
     struct itimerval *captured_timer_interval;
@@ -279,7 +279,7 @@ void Init_system_timer_native()
 {
     init_sigalarm_mask();
     rb_cSystemTimer = rb_define_module("SystemTimer");
-    rb_define_singleton_method(rb_cSystemTimer, "install_first_timer", 	install_first_timer, 1);
+    rb_define_singleton_method(rb_cSystemTimer, "install_first_timer_and_save_original_configuration", 	install_first_timer_and_save_original_configuration, 1);
     rb_define_singleton_method(rb_cSystemTimer, "install_next_timer", 	install_next_timer, 1);
     rb_define_singleton_method(rb_cSystemTimer, "restore_original_configuration", restore_original_configuration, 0);
     rb_define_singleton_method(rb_cSystemTimer, "debug_enabled?", debug_enabled_p, 0);

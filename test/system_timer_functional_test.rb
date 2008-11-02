@@ -78,7 +78,7 @@ functional_tests do
     begin
       fake_original_ruby_handler = proc {}
       initial_ruby_handler = trap "SIGALRM", fake_original_ruby_handler
-      SystemTimer.install_first_timer 3
+      SystemTimer.install_first_timer_and_save_original_configuration 3
       SystemTimer.restore_original_configuration
       assert_equal fake_original_ruby_handler, trap("SIGALRM", "IGNORE")    
     ensure  # avoid interfering with test infrastructure

@@ -63,6 +63,31 @@ unit_tests do
     assert_equal true, pool.empty?
   end
   
+  test "first_timer? returns false when there is no timer" do
+    assert_equal false, SystemTimer::ConcurrentTimerPool.new.first_timer?
+  end
+
+  test "first_timer? returns true when there is a single timer" do
+    pool = SystemTimer::ConcurrentTimerPool.new
+    pool.add_timer 7
+    assert_equal true, pool.first_timer?
+  end
+
+  test "first_timer? returns false when there is more than one timer" do
+    pool = SystemTimer::ConcurrentTimerPool.new
+    pool.add_timer 7
+    pool.add_timer 3
+    assert_equal false, pool.first_timer?
+  end
+
+  test "first_timer? returns false when there is a single timer left" do
+    pool = SystemTimer::ConcurrentTimerPool.new
+    first_timer = pool.add_timer 7
+    pool.add_timer 3
+    pool.cancel first_timer
+    assert_equal true, pool.first_timer?
+  end
+  
   test "next expired timer return nil when there is no registered timer" do
     assert_nil SystemTimer::ConcurrentTimerPool.new.next_expired_timer(24)
   end
