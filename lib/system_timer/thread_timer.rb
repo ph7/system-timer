@@ -1,8 +1,11 @@
 module SystemTimer
+
+  # Timer saving associated thread. This is needed because we trigger timers 
+  # from a Ruby signal handler and Ruby signals are always delivered to 
+  # main thread.
   class ThreadTimer
     attr_reader :trigger_time, :thread
     
-    # Save current thread as Ruby signals are always delivered to main thread.
     def initialize(trigger_time, thread)
       @trigger_time = trigger_time
       @thread = thread

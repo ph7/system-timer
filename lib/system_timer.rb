@@ -42,7 +42,7 @@ module SystemTimer
       new_timer = nil                                      # just for scope
       @mutex.synchronize do
         new_timer = timer_pool.add_timer seconds
-        timer_interval = timer_pool.next_trigger_interval
+        timer_interval = timer_pool.next_trigger_interval_in_seconds
         debug "==== Install Timer ==== at #{Time.now.to_i}, next interval: #{timer_interval}"
         if timer_pool.first_timer?
           install_first_timer_and_save_original_configuration timer_interval
@@ -56,7 +56,7 @@ module SystemTimer
         debug "==== Cleanup Timer ==== at #{Time.now.to_i}, #{new_timer} "
         timer_pool.cancel new_timer
         timer_pool.log_registered_timers if debug_enabled?
-        next_interval = timer_pool.next_trigger_interval
+        next_interval = timer_pool.next_trigger_interval_in_seconds
         debug "Cleanup Timer : next interval #{next_interval.inspect} "
         if next_interval
           install_next_timer next_interval
@@ -71,10 +71,11 @@ module SystemTimer
    
    protected
    
-   def install_ruby_sigalrm_handler   #:nodoc:
+   def install_ruby_sigalrm_handler            #:nodoc:
      @original_ruby_sigalrm_handler = trap('SIGALRM') do
        @mutex.synchronize do
-          timer_pool.trigger_next_expired_timer(Time.now.to_i)
+          # Triggers timers one at a time to ensure more deterministic results
+          timer_pool.trigger_next_expired_timer
        end
      end
    end
@@ -85,11 +86,11 @@ module SystemTimer
      reset_original_ruby_sigalrm_handler
    end
    
-   def original_ruby_sigalrm_handler   #:nodoc:
+   def original_ruby_sigalrm_handler           #:nodoc:
      @original_ruby_sigalrm_handler
    end
  
-   def reset_original_ruby_sigalrm_handler   #:nodoc:
+   def reset_original_ruby_sigalrm_handler     #:nodoc:
      @original_ruby_sigalrm_handler = nil
    end
 

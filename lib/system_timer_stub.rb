@@ -9,6 +9,9 @@ module SystemTimer
        yield
      end
    end
+
+   # Backward compatibility with timeout.rb
+   alias timeout timeout_after 
    
  end
  

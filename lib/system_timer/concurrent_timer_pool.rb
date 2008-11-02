@@ -1,14 +1,17 @@
 module SystemTimer
   
   class ConcurrentTimerPool
-    extend Forwardable
-    
-    def_delegators :registered_timers, :empty?
     
     def registered_timers
       @timers ||= []
     end
         
+    def register_timer(trigger_time, thread)
+      new_timer = ThreadTimer.new(trigger_time, thread)
+      registered_timers << new_timer
+      new_timer
+    end
+
     def add_timer(interval_in_seconds)
       new_timer = register_timer(Time.now.to_i + interval_in_seconds, Thread.current)
       log_registered_timers if SystemTimer.debug_enabled?
@@ -32,12 +35,9 @@ module SystemTimer
       timer.trigger_time unless timer.nil?
     end
 
-    def next_trigger_interval
+    def next_trigger_interval_in_seconds
       timer = next_timer
       [0, (timer.trigger_time - Time.now.to_i)].max unless timer.nil?
-    end
-    
-    def next_timer_interval_in_seconds
     end
     
     def next_expired_timer(now_in_seconds_since_epoch)
@@ -46,8 +46,8 @@ module SystemTimer
                     candidate_timer.trigger_time > now_in_seconds_since_epoch
       candidate_timer
     end
-        
-    def trigger_next_expired_timer(now_in_seconds_since_epoch)
+
+    def trigger_next_expired_timer_at(now_in_seconds_since_epoch)
       timer = next_expired_timer(now_in_seconds_since_epoch)
       return if timer.nil?
 
@@ -56,12 +56,10 @@ module SystemTimer
       timer.thread.raise Timeout::Error.new("time's up!")
     end
 
-    def register_timer(trigger_time, thread)
-      new_timer = ThreadTimer.new(trigger_time, thread)
-      registered_timers << new_timer
-      new_timer
+    def trigger_next_expired_timer
+      trigger_next_expired_timer_at Time.now.to_i
     end
-  
+    
     def log_timeout_received(thread_timer)          #:nodoc:
       puts <<-EOS
         ==== Triger Timer ==== #{thread_timer}
