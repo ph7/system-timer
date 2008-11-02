@@ -1,3 +1,9 @@
+/*
+ * SystemTimer native implementation relying on ITIMER_REAL
+ * 
+ * Copyright 2008 David Vollbracht & Philippe Hanrigou
+ */
+ 
 #include "ruby.h"
 #include "rubysig.h"
 #include <signal.h>
@@ -12,26 +18,26 @@ sigset_t original_mask;
 sigset_t sigalarm_mask;
 struct sigaction original_signal_handler;
 struct itimerval original_timer_interval;
+static int debug_enabled = 0;
 
 static void clear_pending_sigalrm_for_ruby_threads();
-static void log_debug(char*, ...);
-static void log_error(char*, int);
 static void install_ruby_sigalrm_handler(VALUE);
 static void restore_original_ruby_sigalrm_handler(VALUE);
 static void restore_original_sigalrm_mask_when_blocked();
 static void restore_original_timer_interval();
+static void set_itimerval_with_minimum_1s_interval(struct itimerval *, int);
 static void set_itimerval(struct itimerval *, int);
+static void restore_sigalrm_mask(sigset_t *previous_mask);
+static void log_debug(char*, ...);
+static void log_error(char*, int);
 
-static int debug_enabled = 0;
 
 static VALUE install_first_timer_and_save_original_configuration(VALUE self, VALUE seconds)
 {
     struct itimerval timer_interval;
-    struct itimerval *captured_timer_interval;
-    int sanitized_interval_seconds;
 
     if (debug_enabled) {
-      log_debug("[install_first_timer] %d s\n", NUM2INT(seconds));
+        log_debug("[install_first_timer] %d s\n", NUM2INT(seconds));
     }
 
     /*
@@ -62,20 +68,11 @@ static VALUE install_first_timer_and_save_original_configuration(VALUE self, VAL
     install_ruby_sigalrm_handler(self);
 
     /*
-     * Save original real time interval timer if required.
+     * Save original real time interval timer and aet new real time interval timer.     
      */	
     set_itimerval(&original_timer_interval, 0);
-    captured_timer_interval = &original_timer_interval;
-    sanitized_interval_seconds = NUM2INT(seconds);
-    if (sanitized_interval_seconds <= 0 ) {
-        sanitized_interval_seconds = 1;
-    }
-
-    /*
-     * Set new real time interval timer.
-     */	
-    set_itimerval(&timer_interval, sanitized_interval_seconds);
-    if (0 != setitimer(ITIMER_REAL, &timer_interval, captured_timer_interval)) {
+    set_itimerval_with_minimum_1s_interval(&timer_interval, seconds);
+    if (0 != setitimer(ITIMER_REAL, &timer_interval, &original_timer_interval)) {
         log_error("[install_first_timer] Could not install our own timer, timeout will not work", DISPLAY_ERRNO);
         restore_original_ruby_sigalrm_handler(self);
         restore_original_sigalrm_mask_when_blocked();
@@ -100,16 +97,16 @@ static VALUE install_first_timer_and_save_original_configuration(VALUE self, VAL
 static VALUE install_next_timer(VALUE self, VALUE seconds)
 {
     struct itimerval timer_interval;
-    int sanitized_interval_seconds;
+    sigset_t previous_sigalarm_mask;
 
     if (debug_enabled) {
-      log_debug("[install_next_timer] %ds\n", NUM2INT(seconds));
+        log_debug("[install_next_timer] %ds\n", NUM2INT(seconds));
     }
 
     /*
      * Block SIG_ALRM for safe processing of SIG_ALRM configuration and save mask.
      */
-    if (0 != sigprocmask(SIG_BLOCK, &sigalarm_mask, &original_mask)) {
+    if (0 != sigprocmask(SIG_BLOCK, &sigalarm_mask, &previous_sigalarm_mask)) {
         log_error("[install_next_timer] Could not block SIG_ALRM\n", DISPLAY_ERRNO);
         return Qnil;
     }
@@ -117,20 +114,12 @@ static VALUE install_next_timer(VALUE self, VALUE seconds)
     log_debug("[install_next_timer] Successfully blocked SIG_ALRM at O.S. level\n");
 	
     /*
-     * Save original real time interval timer if required.
-     */	
-    sanitized_interval_seconds = NUM2INT(seconds);
-    if (sanitized_interval_seconds <= 0 ) {
-      sanitized_interval_seconds = 1;
-    }
-
-    /*
      * Set new real time interval timer.
      */	
-    set_itimerval(&timer_interval, sanitized_interval_seconds);
+    set_itimerval_with_minimum_1s_interval(&timer_interval, seconds);
     if (0 != setitimer(ITIMER_REAL, &timer_interval, NULL)) {
         log_error("[install_next_timer] Could not install our own timer, timeout will not work", DISPLAY_ERRNO);
-        restore_original_sigalrm_mask_when_blocked();
+        restore_sigalrm_mask(&previous_sigalarm_mask);
         return Qnil;
     }
     log_debug("[install_next_timer] Successfully installed timer (%ds)\n", timer_interval.it_value.tv_sec);
@@ -140,7 +129,7 @@ static VALUE install_next_timer(VALUE self, VALUE seconds)
      */
     if (0 != sigprocmask(SIG_UNBLOCK, &sigalarm_mask, NULL)) {
         log_error("[install_next_timer] Could not unblock SIG_ALRM, timeout will not work", DISPLAY_ERRNO);
-        restore_original_sigalrm_mask_when_blocked();		
+        restore_sigalrm_mask(&previous_sigalarm_mask);
     }
     log_debug("[install_next_timer] Successfully unblocked SIG_ALRM.\n");
 
@@ -186,19 +175,24 @@ static VALUE restore_original_configuration(VALUE self)
  */
 static void restore_original_timer_interval() {
     if (0 != setitimer(ITIMER_REAL, &original_timer_interval, NULL)) {
-        log_error("restore_original_configuration: Could not restore original timer", DISPLAY_ERRNO);
+        log_error("[restore_original_configuration] Could not restore original timer", DISPLAY_ERRNO);
     }
     log_debug("[restore_original_configuration] Successfully restored original timer\n");
 }
 
+static void restore_sigalrm_mask(sigset_t *previous_mask) 
+{
+    if (!sigismember(previous_mask, SIGALRM)) {
+        sigprocmask(SIG_UNBLOCK, &sigalarm_mask, NULL);
+        log_debug("[restore_sigalrm_mask] Unblocked SIG_ALRM\n");
+    } else {
+        log_debug("[restore_sigalrm_mask] No Need to unblock SIG_ALRM\n");
+    }	
+}
+
 static void restore_original_sigalrm_mask_when_blocked() 
 {
-    if (!sigismember(&original_mask, SIGALRM)) {
-        sigprocmask(SIG_UNBLOCK, &sigalarm_mask, NULL);
-        log_debug("[restore_original_configuration] Unblocked SIG_ALRM\n");
-    } else {
-        log_debug("[restore_original_configuration] No Need to unblock SIG_ALRM\n");
-    }	
+  restore_sigalrm_mask(&original_mask);
 }
 
 static void install_ruby_sigalrm_handler(VALUE self) {
@@ -265,6 +259,18 @@ static void init_sigalarm_mask()
     sigemptyset(&sigalarm_mask);
     sigaddset(&sigalarm_mask, SIGALRM);
     return;
+}
+
+static void set_itimerval_with_minimum_1s_interval(struct itimerval *value, 
+                                                   int seconds) {
+
+    int sanitized_second_interval;
+                                                     
+    sanitized_second_interval = NUM2INT(seconds);
+    if (sanitized_second_interval <= 0 ) {
+        sanitized_second_interval = 1;
+    }
+    set_itimerval(value, sanitized_second_interval);
 }
 
 static void set_itimerval(struct itimerval *value, int seconds) {

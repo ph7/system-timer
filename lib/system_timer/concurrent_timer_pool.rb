@@ -1,3 +1,5 @@
+# Copyright 2008 David Vollbracht & Philippe Hanrigou
+
 module SystemTimer
   
   class ConcurrentTimerPool

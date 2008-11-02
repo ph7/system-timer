@@ -1,3 +1,16 @@
+=== 1.1.0 / 2008-11-05
+
+* New implementation supporting concurrent timers, i.e. :
+
+    (1..10).each do
+      Thread.new do
+        SystemTimer.timeout_after(5) do
+          sleep 60
+          puts "hi there!" 
+        end
+      end
+    end
+
 === 1.0.0 / 2008-02-27
 
 * Initial Release

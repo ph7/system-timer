@@ -1,3 +1,5 @@
+# Copyright 2008 David Vollbracht & Philippe Hanrigou
+
 require 'rake'
 require 'rake/testtask'
 require 'rake/rdoctask'
