@@ -225,9 +225,9 @@ functional_tests do
     10.times do
       a_timeout = [1, (rand(10)).to_i].max
       all_threads << Thread.new do
-        assert_timeout_within(a_timeout, 4) do
+        assert_timeout_within(a_timeout, 10) do
           SystemTimer.timeout(a_timeout) do
-             sleep 60
+             sleep 180
           end
         end
       end
@@ -246,7 +246,7 @@ functional_tests do
     elapsed = Time.now - start
     assert elapsed >= expected_timeout_in_seconds, 
            "Timed out too early, expected #{expected_timeout_in_seconds}, got #{elapsed} s"
-    assert elapsed < error_margin * expected_timeout_in_seconds, 
+    assert elapsed < (expected_timeout_in_seconds + error_margin), 
            "Timed out after #{elapsed} seconds, expected #{expected_timeout_in_seconds}"
   end
   
