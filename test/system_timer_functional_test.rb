@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/test_helper'
 
 functional_tests do
   
-  ERROR_MARGIN = 2
+  DEFAULT_ERROR_MARGIN = 2
 
   test "original_ruby_sigalrm_handler is nil after reset" do
     SystemTimer.send(:install_ruby_sigalrm_handler)
@@ -176,13 +176,13 @@ functional_tests do
     first_thread.join
     second_thread.join
   end
-
+  
   test "timeout work when setting concurrent timers, the second one " +
        "expiring before the first one" do
          
     first_thread = Thread.new do
-      assert_timeout_within(20) do
-        SystemTimer.timeout(20) do
+      assert_timeout_within(10) do
+        SystemTimer.timeout(10) do
            sleep 60
         end
       end
@@ -198,15 +198,55 @@ functional_tests do
     second_thread.join
   end
   
-  def assert_timeout_within(expected_timeout_in_seconds, &block)
-    start = Time.now
+  test "timeout work when setting concurrent timers with the exact" +
+       "same timeout" do
+         
+    first_thread = Thread.new do
+      assert_timeout_within(2) do
+        SystemTimer.timeout(2) do
+           sleep 60
+        end
+      end
+    end
+    second_thread = Thread.new do
+      assert_timeout_within(2) do
+        SystemTimer.timeout(2) do
+           sleep 60
+        end
+      end
+    end
+    first_thread.join
+    second_thread.join
+  end
+
+  test "timeout works with random concurrent timers dynamics" do
+    all_threads = []
+    
+    10.times do
+      a_timeout = [1, (rand(10)).to_i].max
+      all_threads << Thread.new do
+        assert_timeout_within(a_timeout, 4) do
+          SystemTimer.timeout(a_timeout) do
+             sleep 60
+          end
+        end
+      end
+    end
+    
+    all_threads.each {|t| t.join}
+  end
+  
+  def assert_timeout_within(expected_timeout_in_seconds, 
+                            error_margin = DEFAULT_ERROR_MARGIN, 
+                            &block)                            
+    start = Time.now    
     yield
     flunk "Did not timeout as expected!"
   rescue Timeout::Error    
     elapsed = Time.now - start
     assert elapsed >= expected_timeout_in_seconds, 
            "Timed out too early, expected #{expected_timeout_in_seconds}, got #{elapsed} s"
-    assert elapsed < ERROR_MARGIN * expected_timeout_in_seconds, 
+    assert elapsed < error_margin * expected_timeout_in_seconds, 
            "Timed out after #{elapsed} seconds, expected #{expected_timeout_in_seconds}"
   end
   
