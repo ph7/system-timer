@@ -61,7 +61,7 @@ specification = Gem::Specification.new do |s|
   s.summary = "Set a Timeout based on signals, which are more reliable than Timeout. Timeout is based on green threads."
   s.version = SYSTEM_TIMER_VERSION
   if ENV['PACKAGE_FOR_WIN32'] || PLATFORM['win32'] 
-    s.platform = Gem::Platform::WIN32
+    s.platform = Gem::Platform.new "mswin32"
     s.files = FileList['lib/system_timer_stub.rb']
     s.autorequire = "system_timer_stub"
   else
