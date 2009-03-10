@@ -25,7 +25,7 @@ static void install_ruby_sigalrm_handler(VALUE);
 static void restore_original_ruby_sigalrm_handler(VALUE);
 static void restore_original_sigalrm_mask_when_blocked();
 static void restore_original_timer_interval();
-static void set_itimerval_with_minimum_1s_interval(struct itimerval *, int);
+static void set_itimerval_with_minimum_1s_interval(struct itimerval *, VALUE);
 static void set_itimerval(struct itimerval *, int);
 static void restore_sigalrm_mask(sigset_t *previous_mask);
 static void log_debug(char*, ...);
@@ -262,7 +262,7 @@ static void init_sigalarm_mask()
 }
 
 static void set_itimerval_with_minimum_1s_interval(struct itimerval *value, 
-                                                   int seconds) {
+                                                   VALUE seconds) {
 
     int sanitized_second_interval;
                                                      

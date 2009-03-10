@@ -1,3 +1,10 @@
+=== 1.1.1 / 2009-03-10
+
+ * Fixing set_itimerval_with_minimum_1s_interval method signature
+   which was incorrect and resulted in a segfault on 64 bits 
+   platform (int versus VALUE). Thanks to Mike Perham for 
+   investigating the problem and sending the patch!
+
 === 1.1.0 / 2008-11-05
 
 * New implementation supporting concurrent timers, i.e. :
