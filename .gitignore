@@ -2,3 +2,4 @@ ext/system_timer/Makefile
 ext/system_timer/system_timer_native.bundle
 ext/system_timer/system_timer_native.o
 rdoc
+pkg
