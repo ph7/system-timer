@@ -50,7 +50,12 @@ functional_tests do
       SystemTimer.timeout_after(1) {sleep 5}
     end
   end
-  
+  test "timeout_after raises CustomTimeout if block takes too long" do
+    assert_raises(CustomTimeout) do
+      SystemTimer.timeout_after(1,CustomTimeout) {sleep 5}
+    end
+  end
+ 
   test "timeout_after does not raises Timeout Error if block completes in time" do
     SystemTimer.timeout_after(5) {sleep 1}
   end

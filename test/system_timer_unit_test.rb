@@ -13,6 +13,17 @@ unit_tests do
     SystemTimer.timeout_after(5) {}    
   end
 
+  test "timeout_after registers a new timer with a custom timeout exception in the timer pool" do
+    pool = stub_everything
+    Thread.stubs(:current).returns(:the_current_thread)
+    SystemTimer.stubs(:timer_pool).returns(pool)
+    SystemTimer.stubs(:install_next_timer)
+    SystemTimer.stubs(:restore_original_configuration)
+
+    pool.expects(:add_timer).with(5,CustomTimeout).returns(stub_everything)
+    SystemTimer.timeout_after(5,CustomTimeout) {}    
+  end
+
   test "timeout_after installs a system timer saving the previous " +
        "configuration when there is only one timer" do
          
