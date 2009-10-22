@@ -1,3 +1,27 @@
+NOTE: we branched ph7/system-timer to implement support for custom timeout classes. Since some ruby libs (ie, Net::HTTP) use Timeout::Error, if you're rescuing their timeouts deep in your code you could mistakenly rescue the SystemTimer exception.  
+See the following code:
+
+> require 'system_timer'
+> begin
+> 	puts "SystemTimer will timeout in 2 seconds"
+> 	SystemTimer.timeout(2){
+> 		#use Net::HTTP and capture it's timeouts
+> 		begin
+> 			#require 'net/http'
+> 		    #Net::HTTP.get_print 'www.example.com', '/index.html'
+> 			puts "Net::HTTP will timeout in 4 seconds"
+> 			sleep 4	
+> 			puts "Net::HTTP will timeout now"
+> 			raise Timeout::Error
+> 		rescue Timeout::Error
+> 			puts "rescued Timeout::Error of Net::HTTP... or not?"
+> 		end
+> 	}
+> rescue Timeout::Error
+> 	puts "I'm pretty sure the exception I rescued is from SystemTimer"
+> end
+
+
 == Synopsis
 
 System Timer, a timer based on underlying SIGALRM system timers, is a
