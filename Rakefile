@@ -14,7 +14,7 @@ CLOBBER.include '**/*.log'
 CLOBBER.include '**/Makefile'
 CLOBBER.include '**/extconf.h'
 
-SYSTEM_TIMER_VERSION = "1.1.1"
+SYSTEM_TIMER_VERSION = "1.1.3"
 SYSTEM_TIMER_GEM_NAME = "SystemTimer"
 
 desc 'Default: run unit tests.'
@@ -60,6 +60,7 @@ specification = Gem::Specification.new do |s|
   s.name = SYSTEM_TIMER_GEM_NAME
   s.summary = "Set a Timeout based on signals, which are more reliable than Timeout. Timeout is based on green threads."
   s.version = SYSTEM_TIMER_VERSION
+  s.authors = ["Philippe Hanrigou", "David Vollbracht"]
   if ENV['PACKAGE_FOR_WIN32'] || PLATFORM['win32'] 
     s.platform = Gem::Platform.new "mswin32"
     s.files = FileList['lib/system_timer_stub.rb']
@@ -79,6 +80,7 @@ specification = Gem::Specification.new do |s|
   s.has_rdoc = true
   s.extra_rdoc_files = ['README']
 	s.test_file = "test/all_tests.rb"
+	s.rubyforge_project = "systemtimer"
 end
   
 Rake::GemPackageTask.new(specification) do |package|
