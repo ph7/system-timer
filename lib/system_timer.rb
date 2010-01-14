@@ -3,6 +3,7 @@
 require 'rubygems'
 require 'timeout'
 require 'forwardable'
+require 'monitor'
 require File.dirname(__FILE__) + '/system_timer/thread_timer'
 require File.dirname(__FILE__) + '/system_timer/concurrent_timer_pool'
 
@@ -31,7 +32,7 @@ module SystemTimer
 
   Thread.exclusive do    # Avoid race conditions for mutex and pool creation
     @timer_pool = ConcurrentTimerPool.new
-    @mutex = Mutex.new
+    @mutex = Monitor.new
   end
   
   class << self
