@@ -30,9 +30,9 @@ require File.dirname(__FILE__) + '/system_timer/concurrent_timer_pool'
 #
 module SystemTimer
 
-  Thread.exclusive do    # Avoid race conditions for mutex and pool creation
+  Thread.exclusive do    # Avoid race conditions for monitor and pool creation
     @timer_pool = ConcurrentTimerPool.new
-    @mutex = Monitor.new
+    @monitor = Monitor.new
   end
   
   class << self
@@ -43,7 +43,7 @@ module SystemTimer
     # the execution and raises a +Timeout::Error+.
     def timeout_after(seconds)
       new_timer = nil                                      # just for scope
-      @mutex.synchronize do
+      @monitor.synchronize do
         new_timer = timer_pool.add_timer seconds
         timer_interval = timer_pool.next_trigger_interval_in_seconds
         debug "==== Install Timer ==== at #{Time.now.to_i}, next interval: #{timer_interval}"
@@ -55,7 +55,7 @@ module SystemTimer
      end
       return yield
     ensure
-      @mutex.synchronize do
+      @monitor.synchronize do
         debug "==== Cleanup Timer ==== at #{Time.now.to_i}, #{new_timer} "
         timer_pool.cancel new_timer
         timer_pool.log_registered_timers if debug_enabled?
@@ -76,7 +76,7 @@ module SystemTimer
    
    def install_ruby_sigalrm_handler            #:nodoc:
      @original_ruby_sigalrm_handler = trap('SIGALRM') do
-       @mutex.synchronize do
+       @monitor.synchronize do
           # Triggers timers one at a time to ensure more deterministic results
           timer_pool.trigger_next_expired_timer
        end

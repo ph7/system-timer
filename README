@@ -35,8 +35,16 @@ a convenience shell wrapping a simple call to timeout.rb under the cover.
 == Authors
 
 * David Vollbracht  <http://davidvollbracht.com>
-* Philippe Hanrigou <http:/ph7spot.com>
-   
+* Philippe Hanrigou <http://ph7spot.com>
+
+== Contributor
+
+* Dmytro Shteflyuk <http://kpumuk.info/> :
+
+  - Changed from using Mutex to Monitor. Evidently Mutex causes thread
+    join errors when Ruby is compiled with -disable-pthreads
+    <http://github.com/ph7/system-timer/commit/50cfbb1177e2163295d34649e98205a3a26dc451>
+	
 == Copyright
 
 Copyright:: (C) 2008  David Vollbracht & Philippe Hanrigou
