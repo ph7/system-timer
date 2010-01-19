@@ -1,27 +1,3 @@
-NOTE: we branched ph7/system-timer to implement support for custom timeout classes. Since some ruby libs (ie, Net::HTTP) use Timeout::Error, if you're rescuing their timeouts deep in your code you could mistakenly rescue the SystemTimer exception.  
-See the following code:
-
-> require 'system_timer'
-> begin
-> 	puts "SystemTimer will timeout in 2 seconds"
-> 	SystemTimer.timeout(2){
-> 		#use Net::HTTP and capture it's timeouts
-> 		begin
-> 			#require 'net/http'
-> 		    #Net::HTTP.get_print 'www.example.com', '/index.html'
-> 			puts "Net::HTTP will timeout in 4 seconds"
-> 			sleep 4	
-> 			puts "Net::HTTP will timeout now"
-> 			raise Timeout::Error
-> 		rescue Timeout::Error
-> 			puts "rescued Timeout::Error of Net::HTTP... or not?"
-> 		end
-> 	}
-> rescue Timeout::Error
-> 	puts "I'm pretty sure the exception I rescued is from SystemTimer"
-> end
-
-
 == Synopsis
 
 System Timer, a timer based on underlying SIGALRM system timers, is a
@@ -36,14 +12,34 @@ More background on:
 
 == Usage
 
-  require 'systemtimer'
+    require 'systemtimer'
+  
+    SystemTimer.timeout_after(5) do
+  
+      # Something that should be interrupted if it takes too much time...
+      # ... even if blocked on a system call!
+  
+    end
 
-  SystemTimer.timeout_after(5) do
 
-    # Something that should be interrupted if it takes too much time...
-    # ... even if blocked on a system call!
+  You can also use a custom timeout exception to be raised on timeouts (to
+  avoid interference with other libraries using `Timeout::Error` -- e.g. `Net::HTTP`)
 
-  end
+    require 'systemtimer'
+ 
+    begin
+
+      SystemTimer.timeout_after(5, MyCustomTimeoutException) do
+    
+        # Something that should be interrupted if it takes too much time...
+        # ... even if blocked on a system call!
+    
+      end
+
+    rescue MyCustomTimeoutException => e
+      # Recovering strategy
+    end
+
 
 == Requirements
 
@@ -68,7 +64,13 @@ a convenience shell wrapping a simple call to timeout.rb under the cover.
   - Changed from using Mutex to Monitor. Evidently Mutex causes thread
     join errors when Ruby is compiled with -disable-pthreads
     <http://github.com/ph7/system-timer/commit/50cfbb1177e2163295d34649e98205a3a26dc451>
-	
+
+* runix <http://github.com/runix> :
+  - Added support for custom timeout exception. Useful to avoid interference
+  	with other libraries using `Timeout::Error` (e.g. `Net::HTTP`)
+    <http://github.com/runix/system-timer/commit/d33acb3acc53d5105c68b25c3a2126fa682f12c0>
+    <http://github.com/runix/system-timer/commit/d8ca3452e462ea909d8e11a6091e7c30dfa3a1a8>
+
 == Copyright
 
 Copyright:: (C) 2008  David Vollbracht & Philippe Hanrigou
