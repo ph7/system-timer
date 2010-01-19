@@ -8,5 +8,3 @@ require 'mocha'
 require 'stringio'
 require "open-uri"
 require 'system_timer'
-class CustomTimeout < Exception
-end

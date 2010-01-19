@@ -9,19 +9,20 @@ unit_tests do
     SystemTimer.stubs(:install_next_timer)
     SystemTimer.stubs(:restore_original_configuration)
 
-    pool.expects(:add_timer).with(5).returns(stub_everything)
+    pool.expects(:add_timer).with(5, nil).returns(stub_everything)
     SystemTimer.timeout_after(5) {}    
   end
 
   test "timeout_after registers a new timer with a custom timeout exception in the timer pool" do
+    MyCustomException = Class.new(Exception)
     pool = stub_everything
     Thread.stubs(:current).returns(:the_current_thread)
     SystemTimer.stubs(:timer_pool).returns(pool)
     SystemTimer.stubs(:install_next_timer)
     SystemTimer.stubs(:restore_original_configuration)
 
-    pool.expects(:add_timer).with(5,CustomTimeout).returns(stub_everything)
-    SystemTimer.timeout_after(5,CustomTimeout) {}    
+    pool.expects(:add_timer).with(5, MyCustomException).returns(stub_everything)
+    SystemTimer.timeout_after(5, MyCustomException) {}    
   end
 
   test "timeout_after installs a system timer saving the previous " +

@@ -41,10 +41,10 @@ module SystemTimer
     # Executes the method's block. If the block execution terminates before 
     # +seconds+ seconds has passed, it returns true. If not, it terminates 
     # the execution and raises a +Timeout::Error+.
-    def timeout_after(seconds)
+    def timeout_after(seconds, exception_class = nil)
       new_timer = nil                                      # just for scope
       @monitor.synchronize do
-        new_timer = timer_pool.add_timer seconds
+        new_timer = timer_pool.add_timer seconds, exception_class
         timer_interval = timer_pool.next_trigger_interval_in_seconds
         debug "==== Install Timer ==== at #{Time.now.to_i}, next interval: #{timer_interval}"
         if timer_pool.first_timer?

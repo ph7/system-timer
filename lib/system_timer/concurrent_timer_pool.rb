@@ -8,14 +8,14 @@ module SystemTimer
       @timers ||= []
     end
         
-    def register_timer(trigger_time, thread)
-      new_timer = ThreadTimer.new(trigger_time, thread)
+    def register_timer(trigger_time, thread, exception_class=nil)
+      new_timer = ThreadTimer.new(trigger_time, thread, exception_class)
       registered_timers << new_timer
       new_timer
     end
 
-    def add_timer(interval_in_seconds)
-      new_timer = register_timer(Time.now.to_i + interval_in_seconds, Thread.current)
+    def add_timer(interval_in_seconds, exception_class=nil)
+      new_timer = register_timer(Time.now.to_i + interval_in_seconds, Thread.current, exception_class)
       log_registered_timers if SystemTimer.debug_enabled?
       new_timer
     end
@@ -55,7 +55,7 @@ module SystemTimer
 
       cancel timer
       log_timeout_received(timer) if SystemTimer.debug_enabled?
-      timer.thread.raise Timeout::Error.new("time's up!")
+      timer.thread.raise timer.exception_class.new("time's up!")
     end
 
     def trigger_next_expired_timer

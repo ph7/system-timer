@@ -13,7 +13,7 @@ unit_tests do
   end
 
   test "to_s retruns a human friendly description of the timer" do
-    assert_match /<ThreadTimer :time => 24, :thread => #<Thread(.*)>>/, 
+    assert_match /<ThreadTimer :time => 24, :thread => #<Thread(.*)>, :exception_class => Timeout::Error>/, 
                  SystemTimer::ThreadTimer.new(24, Thread.current).to_s                 
   end
     

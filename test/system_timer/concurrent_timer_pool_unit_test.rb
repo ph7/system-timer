@@ -25,7 +25,7 @@ unit_tests do
     now = Time.now
     Time.stubs(:now).returns(now)
     
-    pool.expects(:register_timer).with(now.to_i + 15, :the_current_thread)
+    pool.expects(:register_timer).with(now.to_i + 15, :the_current_thread, nil)
     pool.add_timer 15
   end
 
