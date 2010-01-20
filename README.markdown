@@ -1,4 +1,5 @@
-== Synopsis
+Synopsis
+========
 
 System Timer, a timer based on underlying `SIGALRM` system timers, is a
 solution to Ruby processes which hang beyond the time limit when accessing
@@ -10,7 +11,8 @@ More background on:
 * [http://ph7spot.com/musings/system-timer](http://ph7spot.com/musings/system-timer)
 * [http://davidvollbracht.com/2008/6/2/30-days-of-teach-day-1-systemtimer](http://davidvollbracht.com/2008/6/2/30-days-of-teach-day-1-systemtimer)
 
-== Usage
+Usage 
+=====
 
     require 'systemtimer'
   
@@ -55,23 +57,27 @@ More background on:
     end
 
 
-== Requirements
+Requirements
+============
 
 SystemTimer only works on UNIX platforms (Mac OS X, Linux, Solaris, BSD, ...).
 You can install the gem on Microsoft Windows, but you will only get 
 a convenience shell wrapping a simple call to timeout.rb under the cover.
 
-== Install
+Install
+=======
 
     sudo gem install systemtimer
 
 
-== Authors
+Authors
+=======
 
 * David Vollbracht  <http://davidvollbracht.com>
 * Philippe Hanrigou <http://ph7spot.com>
 
-== Contributor
+Contributor
+===========
 
 * Dmytro Shteflyuk <http://kpumuk.info/> :
    - Changed from using Mutex to Monitor. Evidently Mutex causes thread
@@ -86,11 +92,13 @@ a convenience shell wrapping a simple call to timeout.rb under the cover.
      <http://github.com/runix/system-timer/commit/d33acb3acc53d5105c68b25c3a2126fa682f12c0>
      <http://github.com/runix/system-timer/commit/d8ca3452e462ea909d8e11a6091e7c30dfa3a1a8>
 
-== Copyright
+Copyright
+=========
 
 Copyright:: (C) 2008-2010  David Vollbracht & Philippe Hanrigou
 
-== Description
+Description
+===========
 
 While deploying Rails application in production our team discovered
 that some web service call would not timeout way beyond their defined
@@ -115,7 +123,8 @@ timeout.rb, just a way to wrap sensitive call to system resources.
 You can find more details on SystemTimer and how to use it 
 at http://ph7spot.com/articles/system_timer 
 
-== License
+License
+=======
 
 (The Ruby License)
 
