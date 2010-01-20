@@ -15,7 +15,7 @@ module SystemTimer
     end
 
     def add_timer(interval_in_seconds, exception_class=nil)
-      new_timer = register_timer(Time.now.to_i + interval_in_seconds, Thread.current, exception_class)
+      new_timer = register_timer(Time.now.to_f + interval_in_seconds, Thread.current, exception_class)
       log_registered_timers if SystemTimer.debug_enabled?
       new_timer
     end
@@ -39,11 +39,15 @@ module SystemTimer
 
     def next_trigger_interval_in_seconds
       timer = next_timer
-      [0, (timer.trigger_time - Time.now.to_i)].max unless timer.nil?
+      [0, (timer.trigger_time - Time.now.to_f)].max unless timer.nil?
     end
     
     def next_expired_timer(now_in_seconds_since_epoch)
       candidate_timer = next_timer
+      if SystemTimer.debug_enabled?
+        puts "Candidate timer at #{now_in_seconds_since_epoch} : " +
+             candidate_timer.inspect
+      end
       return nil if candidate_timer.nil? || 
                     candidate_timer.trigger_time > now_in_seconds_since_epoch
       candidate_timer
@@ -51,6 +55,7 @@ module SystemTimer
 
     def trigger_next_expired_timer_at(now_in_seconds_since_epoch)
       timer = next_expired_timer(now_in_seconds_since_epoch)
+      puts "Next expired timer : #{timer.inspect}" if SystemTimer.debug_enabled?
       return if timer.nil?
 
       cancel timer
@@ -59,7 +64,8 @@ module SystemTimer
     end
 
     def trigger_next_expired_timer
-      trigger_next_expired_timer_at Time.now.to_i
+      puts "Trigger next expired timer" if SystemTimer.debug_enabled?
+      trigger_next_expired_timer_at Time.now.to_f
     end
     
     def log_timeout_received(thread_timer)          #:nodoc:
@@ -74,7 +80,7 @@ module SystemTimer
 
     def log_registered_timers          #:nodoc:
       puts <<-EOS
-            Registered Timers: #{registered_timers.collect do |t| t.to_s end} 
+            Registered Timers: #{registered_timers.map {|t| t.to_s}.join("\n                               ")}
       EOS
     end
     

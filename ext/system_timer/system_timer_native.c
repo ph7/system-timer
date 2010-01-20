@@ -12,6 +12,8 @@
 
 #define DISPLAY_ERRNO 	 		 1
 #define DO_NOT_DISPLAY_ERRNO 0
+#define MICRO_SECONDS 1000000.0
+#define MINIMUM_TIMER_INTERVAL_IN_SECONDS 0.2
 
 VALUE rb_cSystemTimer;
 sigset_t original_mask;
@@ -26,7 +28,7 @@ static void restore_original_ruby_sigalrm_handler(VALUE);
 static void restore_original_sigalrm_mask_when_blocked();
 static void restore_original_timer_interval();
 static void set_itimerval_with_minimum_1s_interval(struct itimerval *, VALUE);
-static void set_itimerval(struct itimerval *, int);
+static void set_itimerval(struct itimerval *, double);
 static void restore_sigalrm_mask(sigset_t *previous_mask);
 static void log_debug(char*, ...);
 static void log_error(char*, int);
@@ -37,7 +39,7 @@ static VALUE install_first_timer_and_save_original_configuration(VALUE self, VAL
     struct itimerval timer_interval;
 
     if (debug_enabled) {
-        log_debug("[install_first_timer] %d s\n", NUM2INT(seconds));
+        log_debug("[install_first_timer] %.2lfs\n", NUM2DBL(seconds));
     }
 
     /*
@@ -70,7 +72,7 @@ static VALUE install_first_timer_and_save_original_configuration(VALUE self, VAL
     /*
      * Save original real time interval timer and aet new real time interval timer.     
      */	
-    set_itimerval(&original_timer_interval, 0);
+    set_itimerval(&original_timer_interval, 0.0);
     set_itimerval_with_minimum_1s_interval(&timer_interval, seconds);
     if (0 != setitimer(ITIMER_REAL, &timer_interval, &original_timer_interval)) {
         log_error("[install_first_timer] Could not install our own timer, timeout will not work", DISPLAY_ERRNO);
@@ -78,7 +80,10 @@ static VALUE install_first_timer_and_save_original_configuration(VALUE self, VAL
         restore_original_sigalrm_mask_when_blocked();
         return Qnil;
     }
-    log_debug("[install_first_timer] Successfully installed timer (%ds)\n", timer_interval.it_value.tv_sec);
+    if (debug_enabled) {
+      log_debug("[install_first_timer] Successfully installed timer (%ds)\n", 
+                timer_interval.it_value.tv_sec);
+    }
 
     /*
      * Unblock SIG_ALRM
@@ -100,7 +105,7 @@ static VALUE install_next_timer(VALUE self, VALUE seconds)
     sigset_t previous_sigalarm_mask;
 
     if (debug_enabled) {
-        log_debug("[install_next_timer] %ds\n", NUM2INT(seconds));
+        log_debug("[install_next_timer] %.2lfs\n", NUM2DBL(seconds));
     }
 
     /*
@@ -122,7 +127,10 @@ static VALUE install_next_timer(VALUE self, VALUE seconds)
         restore_sigalrm_mask(&previous_sigalarm_mask);
         return Qnil;
     }
-    log_debug("[install_next_timer] Successfully installed timer (%ds)\n", timer_interval.it_value.tv_sec);
+    if (debug_enabled) {
+      log_debug("[install_next_timer] Successfully installed timer (%ds + %dus)\n", 
+                timer_interval.it_value.tv_sec, timer_interval.it_value.tv_usec);
+    }
 
     /*
      * Unblock SIG_ALRM
@@ -264,20 +272,28 @@ static void init_sigalarm_mask()
 static void set_itimerval_with_minimum_1s_interval(struct itimerval *value, 
                                                    VALUE seconds) {
 
-    int sanitized_second_interval;
+    double sanitized_second_interval;
                                                      
-    sanitized_second_interval = NUM2INT(seconds);
-    if (sanitized_second_interval <= 0 ) {
-        sanitized_second_interval = 1;
+    sanitized_second_interval = NUM2DBL(seconds) + MINIMUM_TIMER_INTERVAL_IN_SECONDS;
+    if (sanitized_second_interval < MINIMUM_TIMER_INTERVAL_IN_SECONDS ) {
+        sanitized_second_interval = MINIMUM_TIMER_INTERVAL_IN_SECONDS;
     }
     set_itimerval(value, sanitized_second_interval);
 }
 
-static void set_itimerval(struct itimerval *value, int seconds) {
+static void set_itimerval(struct itimerval *value, double seconds) {
+    if (debug_enabled) {
+      log_debug("[set_itimerval] %.3lfs\n", seconds);
+    }
     value->it_interval.tv_usec = 0;
     value->it_interval.tv_sec = 0;
-    value->it_value.tv_usec = 0;
-    value->it_value.tv_sec = seconds; // (long int) 
+    value->it_value.tv_sec = (long int) (seconds);
+    value->it_value.tv_usec = (long int) ((seconds - value->it_value.tv_sec) \
+                                          * MICRO_SECONDS);
+    if (debug_enabled) {
+      log_debug("[set_itimerval] Set to %ds + %dus\n", value->it_value.tv_sec, 
+                                                       value->it_value.tv_usec);
+    }
     return;
 }
 

@@ -25,7 +25,7 @@ unit_tests do
     now = Time.now
     Time.stubs(:now).returns(now)
     
-    pool.expects(:register_timer).with(now.to_i + 15, :the_current_thread, nil)
+    pool.expects(:register_timer).with(now.to_f + 15, :the_current_thread, nil)
     pool.add_timer 15
   end
 
@@ -123,7 +123,7 @@ unit_tests do
     pool = SystemTimer::ConcurrentTimerPool.new
     now = Time.now
     Time.stubs(:now).returns(now)
-    next_timer = SystemTimer::ThreadTimer.new((now.to_i + 7), stub_everything)
+    next_timer = SystemTimer::ThreadTimer.new((now.to_f + 7), stub_everything)
     pool.expects(:next_timer).returns(next_timer)
     assert_equal 7, pool.next_trigger_interval_in_seconds
   end
@@ -132,7 +132,7 @@ unit_tests do
     pool = SystemTimer::ConcurrentTimerPool.new
     now = Time.now
     Time.stubs(:now).returns(now)
-    next_timer = SystemTimer::ThreadTimer.new now.to_i, stub_everything
+    next_timer = SystemTimer::ThreadTimer.new now.to_f, stub_everything
     pool.expects(:next_timer).returns(next_timer)
     assert_equal 0, pool.next_trigger_interval_in_seconds
   end
@@ -141,7 +141,7 @@ unit_tests do
     pool = SystemTimer::ConcurrentTimerPool.new
     now = Time.now
     Time.stubs(:now).returns(now)
-    next_timer = SystemTimer::ThreadTimer.new((now.to_i - 3), stub_everything)
+    next_timer = SystemTimer::ThreadTimer.new((now.to_f - 3), stub_everything)
     pool.expects(:next_timer).returns(next_timer)
     assert_equal 0, pool.next_trigger_interval_in_seconds
   end
@@ -217,12 +217,21 @@ unit_tests do
 
   test "trigger_next_expired_timer_at logs timeout a registered timer has expired" +
        "and SystemTimer debug mode is enabled " do
-    pool = SystemTimer::ConcurrentTimerPool.new
-    the_timer = pool.register_timer 24, stub_everything
-    SystemTimer.stubs(:debug_enabled?).returns(true)
 
-    pool.expects(:log_timeout_received).with(the_timer)
-    pool.trigger_next_expired_timer_at 24
+    original_stdout = $stdout
+    begin
+      stdout = StringIO.new
+      $stdout = stdout
+
+      pool = SystemTimer::ConcurrentTimerPool.new
+      the_timer = pool.register_timer 24, stub_everything
+      SystemTimer.stubs(:debug_enabled?).returns(true)
+  
+      pool.expects(:log_timeout_received).with(the_timer)
+      pool.trigger_next_expired_timer_at 24
+    ensure
+      $stdout = original_stdout
+    end
   end
 
   test "trigger_next_expired_timer_at does not logs timeoout when SystemTimer " +
@@ -238,13 +247,21 @@ unit_tests do
 
   test "trigger_next_expired_timer_at does not logs timeout no registered timer " +
        "has expired and SystemTimer debug mode is enabled " do
-         
-    pool = SystemTimer::ConcurrentTimerPool.new
-    the_timer = pool.register_timer 24, stub_everything
-    SystemTimer.stubs(:debug_enabled?).returns(true)
 
-    pool.expects(:log_timeout_received).never
-    pool.trigger_next_expired_timer_at 23
+    original_stdout = $stdout
+    begin
+      stdout = StringIO.new
+      $stdout = stdout
+         
+      pool = SystemTimer::ConcurrentTimerPool.new
+      the_timer = pool.register_timer 24, stub_everything
+      SystemTimer.stubs(:debug_enabled?).returns(true)
+
+      pool.expects(:log_timeout_received).never
+      pool.trigger_next_expired_timer_at 23
+    ensure
+      $stdout = original_stdout
+    end
   end
   
   test "trigger_next_expired_timer is a shorcut method calling " +
@@ -254,7 +271,7 @@ unit_tests do
     pool = SystemTimer::ConcurrentTimerPool.new
     Time.stubs(:now).returns(now)
     
-    pool.expects(:trigger_next_expired_timer_at).with(now.to_i)
+    pool.expects(:trigger_next_expired_timer_at).with(now.to_f)
     pool.trigger_next_expired_timer
   end
   

@@ -51,6 +51,13 @@ functional_tests do
     end
   end
 
+  test "timeout_after timeout can be a fraction of a second" do
+    assert_raises(Timeout::Error) do
+      SystemTimer.timeout_after(0.2) {sleep 3}
+    end
+  end
+
+
   test "timeout_after raises a custom timeout when block takes too long and a custom exception class is provided" do
     ACustomException = Class.new(Exception)
     assert_raises(ACustomException) do
@@ -161,18 +168,28 @@ functional_tests do
   end
   
   test "can set multiple serial timers" do
-    10.times do
-      assert_timeout_within(3) do
-        SystemTimer.timeout(3) do
+    10.times do |i|
+      print(i) & STDOUT.flush
+      assert_timeout_within(1) do
+        SystemTimer.timeout(1) do
+           sleep 60
+        end
+      end
+    end
+  end
+
+  test "can set multiple serial timers with fractional timeout" do
+    10.times do |i|
+      print(i) & STDOUT.flush
+      assert_timeout_within(0.5) do
+        SystemTimer.timeout(0.5) do
            sleep 60
         end
       end
     end
   end
   
-  test "timeout work when setting concurrent timers, the first one " +
-       "expiring before the second one" do
-         
+  test "timeout work when setting concurrent timers, the first one expiring before the second one" do
     first_thread = Thread.new do
       assert_timeout_within(3) do
         SystemTimer.timeout(3) do
@@ -191,9 +208,8 @@ functional_tests do
     second_thread.join
   end
   
-  test "timeout work when setting concurrent timers, the second one " +
-       "expiring before the first one" do
-         
+  test "timeout work when setting concurrent timers, the second one expiring before the first one" do
+
     first_thread = Thread.new do
       assert_timeout_within(10) do
         SystemTimer.timeout(10) do
@@ -212,8 +228,7 @@ functional_tests do
     second_thread.join
   end
   
-  test "timeout work when setting concurrent timers with the exact" +
-       "same timeout" do
+  test "timeout work when setting concurrent timers with the exact same timeout" do
          
     first_thread = Thread.new do
       assert_timeout_within(2) do
@@ -237,7 +252,7 @@ functional_tests do
     all_threads = []
     
     10.times do
-      a_timeout = [1, (rand(10)).to_i].max
+      a_timeout = [1, (rand(10)).to_f].max
       all_threads << Thread.new do
         assert_timeout_within(a_timeout, 10) do
           SystemTimer.timeout(a_timeout) do

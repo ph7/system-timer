@@ -46,7 +46,7 @@ module SystemTimer
       @monitor.synchronize do
         new_timer = timer_pool.add_timer seconds, exception_class
         timer_interval = timer_pool.next_trigger_interval_in_seconds
-        debug "==== Install Timer ==== at #{Time.now.to_i}, next interval: #{timer_interval}"
+        debug "==== Install Timer ==== at #{Time.now.to_f}, next interval: #{timer_interval}"
         if timer_pool.first_timer?
           install_first_timer_and_save_original_configuration timer_interval
         else
@@ -56,7 +56,7 @@ module SystemTimer
       return yield
     ensure
       @monitor.synchronize do
-        debug "==== Cleanup Timer ==== at #{Time.now.to_i}, #{new_timer} "
+        debug "==== Cleanup Timer ==== at #{Time.now.to_f}, #{new_timer} "
         timer_pool.cancel new_timer
         timer_pool.log_registered_timers if debug_enabled?
         next_interval = timer_pool.next_trigger_interval_in_seconds

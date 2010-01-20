@@ -31,8 +31,8 @@ unit_tests do
     now = Time.now
     Time.stubs(:now).returns(now)
     SystemTimer.stubs(:restore_original_configuration)
-
-    SystemTimer.expects(:install_first_timer_and_save_original_configuration).with(24)
+    SystemTimer.expects(:install_first_timer_and_save_original_configuration) \
+               .with {|value| value.between?(23.99, 24.01) }
     SystemTimer.timeout_after(24) {}    
   end
 
@@ -41,11 +41,12 @@ unit_tests do
          
     now = Time.now
     Time.stubs(:now).returns(now)
-    SystemTimer.timer_pool.register_timer now.to_i + 100, :a_thread
+    SystemTimer.timer_pool.register_timer now.to_f + 100, :a_thread
     SystemTimer.stubs(:restore_original_configuration)
     SystemTimer.stubs(:install_next_timer)
 
-    SystemTimer.expects(:install_next_timer).with(24)
+    SystemTimer.expects(:install_next_timer) \
+               .with {|value| value.between?(23.99, 24.01) }
     SystemTimer.timeout_after(24) {}    
   end
 
@@ -54,11 +55,12 @@ unit_tests do
          
     now = Time.now
     Time.stubs(:now).returns(now)
-    SystemTimer.timer_pool.register_timer now.to_i + 24, :a_thread
+    SystemTimer.timer_pool.register_timer now.to_f + 24, :a_thread
     SystemTimer.stubs(:restore_original_configuration)
     SystemTimer.stubs(:install_next_timer)
 
-    SystemTimer.expects(:install_next_timer).with(24)
+    SystemTimer.expects(:install_next_timer) \
+               .with {|value| value.between?(23.99, 24.01) }
     SystemTimer.timeout_after(100) {}    
   end
   
