@@ -2,8 +2,8 @@
 
 System Timer, a timer based on underlying `SIGALRM` system timers, is a
 solution to Ruby processes which hang beyond the time limit when accessing
-external resources. This is useful when `timeout.rb`, which relies on
-green threads, does not work consistently.
+external resources. This is useful when `timeout.rb`, which, on M.R.I 1.8,
+relies on green threads, does not work consistently.
 
 More background on:
 
@@ -132,33 +132,33 @@ You can redistribute it and/or modify it under either the terms of the GPL
   2. You may modify your copy of the software in any way, provided that
      you do at least ONE of the following:
 
-       a) place your modifications in the Public Domain or otherwise
-          make them Freely Available, such as by posting said
-          modifications to Usenet or an equivalent medium, or by allowing
-	      the author to include your modifications in the software.
+     a) place your modifications in the Public Domain or otherwise
+        make them Freely Available, such as by posting said
+        modifications to Usenet or an equivalent medium, or by allowing
+	    the author to include your modifications in the software.
 
-       b) use the modified software only within your corporation or
-          organization.
+     b) use the modified software only within your corporation or
+        organization.
 
-       c) rename any non-standard executables so the names do not conflict
-	      with standard executables, which must also be provided.
+     c) rename any non-standard executables so the names do not conflict
+	    with standard executables, which must also be provided.
 
-       d) make other distribution arrangements with the author.
+     d) make other distribution arrangements with the author.
 
   3. You may distribute the software in object code or executable
      form, provided that you do at least ONE of the following:
 
-       a) distribute the executables and library files of the software,
-          together with instructions (in the manual page or equivalent)
-          on where to get the original distribution.
+     a) distribute the executables and library files of the software,
+        together with instructions (in the manual page or equivalent)
+        on where to get the original distribution.
 
-       b) accompany the distribution with the machine-readable source of
-          the software.
+     b) accompany the distribution with the machine-readable source of
+        the software.
 
-       c) give non-standard executables non-standard names, with
-          instructions on where to get the original software distribution.
+     c) give non-standard executables non-standard names, with
+        instructions on where to get the original software distribution.
 
-       d) make other distribution arrangements with the author.
+     d) make other distribution arrangements with the author.
 
   4. You may modify and include the part of the software into any other
      software (possibly commercial).  But some files in the distribution
