@@ -1,14 +1,14 @@
 == Synopsis
 
-System Timer, a timer based on underlying SIGALRM system timers, is a
+System Timer, a timer based on underlying `SIGALRM` system timers, is a
 solution to Ruby processes which hang beyond the time limit when accessing
-external resources. This is useful when timeout.rb, which relies on green
-threads, does not work consistently.
+external resources. This is useful when `timeout.rb`, which relies on
+green threads, does not work consistently.
 
 More background on:
 
-* http://ph7spot.com/articles/system_timer 
-* http://davidvollbracht.com/2008/6/2/30-days-of-teach-day-1-systemtimer
+* [http://ph7spot.com/musings/system-timer](http://ph7spot.com/musings/system-timer)
+* [http://davidvollbracht.com/2008/6/2/30-days-of-teach-day-1-systemtimer](http://davidvollbracht.com/2008/6/2/30-days-of-teach-day-1-systemtimer)
 
 == Usage
 
@@ -34,7 +34,7 @@ More background on:
 
   Note that SystemTimer is going through too many layers to be 
   able to reliably guarantee a sub-second timeout on all platforms, 
-  so your mileage may vary when specifying timeouts under 1s.
+  so your mileage may vary when specifying timeouts under one second.
 
   You can also use a custom timeout exception to be raised on timeouts (to
   avoid interference with other libraries using `Timeout::Error` -- e.g. `Net::HTTP`)
@@ -74,23 +74,21 @@ a convenience shell wrapping a simple call to timeout.rb under the cover.
 == Contributor
 
 * Dmytro Shteflyuk <http://kpumuk.info/> :
-
-  - Changed from using Mutex to Monitor. Evidently Mutex causes thread
-    join errors when Ruby is compiled with -disable-pthreads
-    <http://github.com/kpumuk/system-micro-timer/commit/fe28f4dcf7d4126e53b7c642c5ec35fe8bc1e081>
-
-  - First tentative to support float timeouts
-    <http://github.com/kpumuk/system-micro-timer/commit/57fff73849aad7c94f8b9234352b7288d1314d21>
+   - Changed from using Mutex to Monitor. Evidently Mutex causes thread
+     join errors when Ruby is compiled with -disable-pthreads
+     <http://github.com/kpumuk/system-micro-timer/commit/fe28f4dcf7d4126e53b7c642c5ec35fe8bc1e081>
+   - First tentative to support float timeouts
+     <http://github.com/kpumuk/system-micro-timer/commit/57fff73849aad7c94f8b9234352b7288d1314d21>
 
 * runix <http://github.com/runix> :
-  - Added support for custom timeout exception. Useful to avoid interference
-  	with other libraries using `Timeout::Error` (e.g. `Net::HTTP`)
-    <http://github.com/runix/system-timer/commit/d33acb3acc53d5105c68b25c3a2126fa682f12c0>
-    <http://github.com/runix/system-timer/commit/d8ca3452e462ea909d8e11a6091e7c30dfa3a1a8>
+   - Added support for custom timeout exception. Useful to avoid interference
+     with other libraries using `Timeout::Error` (e.g. `Net::HTTP`)
+     <http://github.com/runix/system-timer/commit/d33acb3acc53d5105c68b25c3a2126fa682f12c0>
+     <http://github.com/runix/system-timer/commit/d8ca3452e462ea909d8e11a6091e7c30dfa3a1a8>
 
 == Copyright
 
-Copyright:: (C) 2008  David Vollbracht & Philippe Hanrigou
+Copyright:: (C) 2008-2010  David Vollbracht & Philippe Hanrigou
 
 == Description
 
@@ -121,7 +119,7 @@ at http://ph7spot.com/articles/system_timer
 
 (The Ruby License)
 
-Copyright:: (C) 2008  David Vollbracht & Philippe Hanrigou
+Copyright:: (C) 2008-2010  David Vollbracht & Philippe Hanrigou
 
 SystemTimer is copyrighted free software by David Vollbracht and Philippe Hanrigou.
 You can redistribute it and/or modify it under either the terms of the GPL
