@@ -135,13 +135,13 @@ You can redistribute it and/or modify it under either the terms of the GPL
     a) place your modifications in the Public Domain or otherwise
        make them Freely Available, such as by posting said
        modifications to Usenet or an equivalent medium, or by allowing
-	     the author to include your modifications in the software.
+       the author to include your modifications in the software.
 
     b) use the modified software only within your corporation or
        organization.
 
     c) rename any non-standard executables so the names do not conflict
-	     with standard executables, which must also be provided.
+       with standard executables, which must also be provided.
 
     d) make other distribution arrangements with the author.
 
