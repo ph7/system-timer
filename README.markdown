@@ -21,6 +21,20 @@ More background on:
   
     end
 
+  You can use a floating point number when specifying the timeout in
+  seconds but SystemTimer will not allow you to go below 200ms, e.g.
+
+    SystemTimer.timeout_after(0.5) do 
+      # timeout after 500ms
+    end
+
+    SystemTimer.timeout_after(0.01) do 
+      # timeout after (uncompressable) 200ms even if 10ms requested
+    end
+
+  Note that SystemTimer is going through too many layers to be 
+  able to reliably guarantee a sub-second timeout on all platforms, 
+  so your mileage may vary when specifying timeouts under 1s.
 
   You can also use a custom timeout exception to be raised on timeouts (to
   avoid interference with other libraries using `Timeout::Error` -- e.g. `Net::HTTP`)
@@ -63,7 +77,10 @@ a convenience shell wrapping a simple call to timeout.rb under the cover.
 
   - Changed from using Mutex to Monitor. Evidently Mutex causes thread
     join errors when Ruby is compiled with -disable-pthreads
-    <http://github.com/ph7/system-timer/commit/50cfbb1177e2163295d34649e98205a3a26dc451>
+    <http://github.com/kpumuk/system-micro-timer/commit/fe28f4dcf7d4126e53b7c642c5ec35fe8bc1e081>
+
+  - First tentative to support float timeouts
+    <http://github.com/kpumuk/system-micro-timer/commit/57fff73849aad7c94f8b9234352b7288d1314d21>
 
 * runix <http://github.com/runix> :
   - Added support for custom timeout exception. Useful to avoid interference
