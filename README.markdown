@@ -41,7 +41,7 @@ Usage
   able to reliably guarantee a sub-second timeout on all platforms, 
   so your mileage may vary when specifying timeouts under one second.
 
- Custom Tiemout Exceptions
+ Custom Timeout Exceptions
  -------------------------
 
   You can also use a custom timeout exception to be raised on timeouts (to
