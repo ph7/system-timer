@@ -34,7 +34,7 @@ Usage
     end
 
     SystemTimer.timeout_after(0.01) do 
-      # timeout after (uncompressable) 200ms even if 10ms requested
+      # timeout after (uncompressable) 200ms even if 10ms is requested
     end
 
   Note that SystemTimer is going through too many layers to be 
