@@ -23,6 +23,9 @@ Usage
   
     end
 
+ Timeouts as Floats
+ ------------------
+
   You can use a floating point number when specifying the timeout in
   seconds but SystemTimer will not allow you to go below 200ms, e.g.
 
@@ -37,6 +40,9 @@ Usage
   Note that SystemTimer is going through too many layers to be 
   able to reliably guarantee a sub-second timeout on all platforms, 
   so your mileage may vary when specifying timeouts under one second.
+
+ Custom Tiemout Exceptions
+ -------------------------
 
   You can also use a custom timeout exception to be raised on timeouts (to
   avoid interference with other libraries using `Timeout::Error` -- e.g. `Net::HTTP`)
