@@ -1,4 +1,4 @@
-=== 1.1.4/ 2010-01-18
+=== 1.2 / 2010-02-25
 
  * Changed from using Mutex to Monitor. Mutex causes thread join
    errors when Ruby is compiled with -disable-pthreads
