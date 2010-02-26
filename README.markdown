@@ -14,7 +14,7 @@ More background on:
 Usage 
 =====
 
-    require 'systemtimer'
+    require 'system_timer'
   
     SystemTimer.timeout_after(5) do
   
@@ -47,7 +47,7 @@ Usage
   You can also use a custom timeout exception to be raised on timeouts (to
   avoid interference with other libraries using `Timeout::Error` -- e.g. `Net::HTTP`)
 
-    require 'systemtimer'
+    require 'system_timer'
  
     begin
 
@@ -82,8 +82,8 @@ Authors
 * David Vollbracht  <http://davidvollbracht.com>
 * Philippe Hanrigou <http://ph7spot.com>
 
-Contributor
-===========
+Contributors
+============
 
 * Dmytro Shteflyuk <http://kpumuk.info/> :
    - Changed from using Mutex to Monitor. Evidently Mutex causes thread
