@@ -73,8 +73,7 @@ a convenience shell wrapping a simple call to timeout.rb under the cover.
 Install
 =======
 
-    sudo gem install systemtimer
-
+    sudo gem install SystemTimer
 
 Authors
 =======
