@@ -1,5 +1,9 @@
 # Copyright 2008 David Vollbracht & Philippe Hanrigou
 
+if defined?(RUBY_ENGINE) and RUBY_ENGINE == "rbx"
+  require File.dirname(__FILE__) + '/system_timer_stub'
+else
+
 require 'rubygems'
 require 'timeout'
 require 'forwardable'
@@ -106,3 +110,6 @@ module SystemTimer
 end
 
 require 'system_timer_native'
+
+
+end # stub guard

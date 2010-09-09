@@ -16,6 +16,10 @@
 #define MINIMUM_TIMER_INTERVAL_IN_SECONDS 0.2
 
 VALUE rb_cSystemTimer;
+
+// Ignore most of this for Rubinius
+#ifndef RUBINIUS
+
 sigset_t original_mask;
 sigset_t sigalarm_mask;
 struct sigaction original_signal_handler;
@@ -297,6 +301,7 @@ static void set_itimerval(struct itimerval *value, double seconds) {
     return;
 }
 
+
 void Init_system_timer_native() 
 {
     init_sigalarm_mask();
@@ -308,3 +313,13 @@ void Init_system_timer_native()
     rb_define_singleton_method(rb_cSystemTimer, "enable_debug", 	enable_debug, 0);
     rb_define_singleton_method(rb_cSystemTimer, "disable_debug",	disable_debug, 0);
 }
+
+#else
+
+// Exists just to make things happy
+void Init_system_timer_native()
+{
+  rb_cSystemTimer = rb_define_module("SystemTimer");
+}
+
+#endif
