@@ -1,3 +1,8 @@
+=== 1.2.1 / 2010-11-15
+
+ * Better Rubinious support (Contributed by 
+   Evan Phoenix <http://blog.fallingsnow.net/>)
+
 === 1.2 / 2010-02-25
 
  * Changed from using Mutex to Monitor. Mutex causes thread join
