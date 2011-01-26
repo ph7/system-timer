@@ -1,3 +1,8 @@
+=== 1.2.2 / 2011-01-25
+
+ * Explicit required_ruby_version = '~> 1.8.7' in gem spec.
+   (Contributed by Jesse Storimer <http://jstorimer.com>)
+
 === 1.2.1 / 2010-11-15
 
  * Better Rubinious support (Contributed by 

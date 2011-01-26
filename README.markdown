@@ -97,6 +97,10 @@ Contributors
      <http://github.com/runix/system-timer/commit/d33acb3acc53d5105c68b25c3a2126fa682f12c0>
      <http://github.com/runix/system-timer/commit/d8ca3452e462ea909d8e11a6091e7c30dfa3a1a8>
 
+* Jesse Storimer <http://jstorimer.com>
+   - Explicit required_ruby_version = '~> 1.8.7' in gem spec.
+     <https://github.com/jstorimer/system-timer/commit/ec08b4d2173ffd635065a1680c8f8b4fbf6691fd>
+
 Copyright
 =========
 
