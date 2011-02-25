@@ -56,7 +56,7 @@ module SystemTimer
         else
           install_next_timer timer_interval
         end
-     end
+      end
       return yield
     ensure
       @monitor.synchronize do
