@@ -14,13 +14,13 @@ CLOBBER.include '**/*.log'
 CLOBBER.include '**/Makefile'
 CLOBBER.include '**/extconf.h'
 
-SYSTEM_TIMER_VERSION = "1.2.2"
+SYSTEM_TIMER_VERSION = "1.2.3"
 SYSTEM_TIMER_GEM_NAME = "SystemTimer"
 
 desc 'Default: run unit tests.'
 task :default => :test
 
-desc 'Install the gem into the local gem repository' 
+desc 'Install the gem into the local gem repository'
 task :install => 'package' do
   sh "gem install ./pkg/#{SYSTEM_TIMER_GEM_NAME}-#{SYSTEM_TIMER_VERSION}.gem"
 end
@@ -61,20 +61,20 @@ specification = Gem::Specification.new do |s|
   s.summary = "Set a Timeout based on signals, which are more reliable than Timeout. Timeout is based on green threads."
   s.version = SYSTEM_TIMER_VERSION
   s.authors = ["Philippe Hanrigou", "David Vollbracht"]
-  if ENV['PACKAGE_FOR_WIN32'] || PLATFORM['win32'] 
+  if ENV['PACKAGE_FOR_WIN32'] || PLATFORM['win32']
     s.platform = Gem::Platform.new "mswin32"
     s.files = FileList['lib/system_timer_stub.rb']
     s.autorequire = "system_timer_stub"
   else
     s.platform = Gem::Platform::RUBY
-    s.files = [ "COPYING", "LICENSE", "ChangeLog"] + 
-                FileList['ext/**/*.c'] + 
-                FileList['ext/**/*.rb'] + 
-                FileList['lib/**/*.rb'] + 
+    s.files = [ "COPYING", "LICENSE", "ChangeLog"] +
+                FileList['ext/**/*.c'] +
+                FileList['ext/**/*.rb'] +
+                FileList['lib/**/*.rb'] +
                 FileList['test/**/*.rb']
     s.autorequire = "system_timer"
     s.extensions = ["ext/system_timer/extconf.rb"]
-  end  
+  end
   s.require_path = "lib"
   s.rdoc_options << '--title' << 'SystemTimer' << '--main' << 'README' << '--line-numbers'
   s.has_rdoc = true
@@ -82,7 +82,7 @@ specification = Gem::Specification.new do |s|
 	s.test_file = "test/all_tests.rb"
 	s.rubyforge_project = "systemtimer"
 end
-  
+
 Rake::GemPackageTask.new(specification) do |package|
 	 package.need_zip = false
 	 package.need_tar = false

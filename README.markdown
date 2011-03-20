@@ -87,19 +87,24 @@ Contributors
 * Dmytro Shteflyuk <http://kpumuk.info/> :
    - Changed from using Mutex to Monitor. Evidently Mutex causes thread
      join errors when Ruby is compiled with -disable-pthreads
-     <http://github.com/kpumuk/system-micro-timer/commit/fe28f4dcf7d4126e53b7c642c5ec35fe8bc1e081>
+     <https://github.com/kpumuk/system-micro-timer/commit/fe28f4dcf7d4126e53b7c642c5ec35fe8bc1e081>
    - First tentative to support float timeouts
-     <http://github.com/kpumuk/system-micro-timer/commit/57fff73849aad7c94f8b9234352b7288d1314d21>
+     <https://github.com/kpumuk/system-micro-timer/commit/57fff73849aad7c94f8b9234352b7288d1314d21>
 
 * runix <http://github.com/runix> :
    - Added support for custom timeout exception. Useful to avoid interference
      with other libraries using `Timeout::Error` (e.g. `Net::HTTP`)
-     <http://github.com/runix/system-timer/commit/d33acb3acc53d5105c68b25c3a2126fa682f12c0>
-     <http://github.com/runix/system-timer/commit/d8ca3452e462ea909d8e11a6091e7c30dfa3a1a8>
+     <https://github.com/runix/system-timer/commit/d33acb3acc53d5105c68b25c3a2126fa682f12c0>
+     <https://github.com/runix/system-timer/commit/d8ca3452e462ea909d8e11a6091e7c30dfa3a1a8>
 
 * Jesse Storimer <http://jstorimer.com>
    - Explicit required_ruby_version = '~> 1.8.7' in gem spec.
      <https://github.com/jstorimer/system-timer/commit/ec08b4d2173ffd635065a1680c8f8b4fbf6691fd>
+
+* James Tucker <http://blog.ra66i.org>
+   - Fix for RubyGems 1.6, which will not require "thread"
+     <https://github.com/raggi/system-timer/commit/f6dd9535e3f1141f319fe7919b8347dd0e40560c>
+     <https://github.com/raggi/system-timer/commit/b13ff12bc7392b1aa2fe7911e305a3e8f215efd2>
 
 Copyright
 =========
