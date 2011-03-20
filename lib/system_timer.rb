@@ -5,6 +5,7 @@ if defined?(RUBY_ENGINE) and RUBY_ENGINE == "rbx"
 else
 
 require 'rubygems'
+require 'thread'
 require 'timeout'
 require 'forwardable'
 require 'monitor'
@@ -38,12 +39,12 @@ module SystemTimer
     @timer_pool = ConcurrentTimerPool.new
     @monitor = Monitor.new
   end
-  
+
   class << self
-    attr_reader :timer_pool   
-   
-    # Executes the method's block. If the block execution terminates before 
-    # +seconds+ seconds has passed, it returns true. If not, it terminates 
+    attr_reader :timer_pool
+
+    # Executes the method's block. If the block execution terminates before
+    # +seconds+ seconds has passed, it returns true. If not, it terminates
     # the execution and raises a +Timeout::Error+.
     def timeout_after(seconds, exception_class = nil)
       new_timer = nil                                      # just for scope
@@ -68,16 +69,16 @@ module SystemTimer
         if next_interval
           install_next_timer next_interval
         else
-          restore_original_configuration          
+          restore_original_configuration
         end
       end
     end
-   
+
     # Backward compatibility with timeout.rb
-    alias timeout timeout_after 
-   
+    alias timeout timeout_after
+
    protected
-   
+
    def install_ruby_sigalrm_handler            #:nodoc:
      @original_ruby_sigalrm_handler = trap('SIGALRM') do
        @monitor.synchronize do
@@ -86,17 +87,17 @@ module SystemTimer
        end
      end
    end
-  
+
    def restore_original_ruby_sigalrm_handler   #:nodoc:
      trap('SIGALRM', original_ruby_sigalrm_handler || 'DEFAULT')
    ensure
      reset_original_ruby_sigalrm_handler
    end
-   
+
    def original_ruby_sigalrm_handler           #:nodoc:
      @original_ruby_sigalrm_handler
    end
- 
+
    def reset_original_ruby_sigalrm_handler     #:nodoc:
      @original_ruby_sigalrm_handler = nil
    end
@@ -104,7 +105,7 @@ module SystemTimer
    def debug(message)    #:nodoc
      puts message if debug_enabled?
    end
-     
+
  end
 
 end
