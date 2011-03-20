@@ -4,7 +4,6 @@ if defined?(RUBY_ENGINE) and RUBY_ENGINE == "rbx"
   require File.dirname(__FILE__) + '/system_timer_stub'
 else
 
-require 'rubygems'
 require 'thread'
 require 'timeout'
 require 'forwardable'

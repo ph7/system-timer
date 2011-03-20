@@ -11,16 +11,16 @@ More background on:
 * [http://ph7spot.com/musings/system-timer](http://ph7spot.com/musings/system-timer)
 * [http://davidvollbracht.com/2008/6/2/30-days-of-teach-day-1-systemtimer](http://davidvollbracht.com/2008/6/2/30-days-of-teach-day-1-systemtimer)
 
-Usage 
+Usage
 =====
 
     require 'system_timer'
-  
+
     SystemTimer.timeout_after(5) do
-  
+
       # Something that should be interrupted if it takes too much time...
       # ... even if blocked on a system call!
-  
+
     end
 
  Timeouts as Floats
@@ -29,16 +29,16 @@ Usage
   You can use a floating point number when specifying the timeout in
   seconds but SystemTimer will not allow you to go below 200ms, e.g.
 
-    SystemTimer.timeout_after(0.5) do 
+    SystemTimer.timeout_after(0.5) do
       # timeout after 500ms
     end
 
-    SystemTimer.timeout_after(0.01) do 
+    SystemTimer.timeout_after(0.01) do
       # timeout after (uncompressable) 200ms even if 10ms is requested
     end
 
-  Note that SystemTimer is going through too many layers to be 
-  able to reliably guarantee a sub-second timeout on all platforms, 
+  Note that SystemTimer is going through too many layers to be
+  able to reliably guarantee a sub-second timeout on all platforms,
   so your mileage may vary when specifying timeouts under one second.
 
  Custom Timeout Exceptions
@@ -48,14 +48,14 @@ Usage
   avoid interference with other libraries using `Timeout::Error` -- e.g. `Net::HTTP`)
 
     require 'system_timer'
- 
+
     begin
 
       SystemTimer.timeout_after(5, MyCustomTimeoutException) do
-    
+
         # Something that should be interrupted if it takes too much time...
         # ... even if blocked on a system call!
-    
+
       end
 
     rescue MyCustomTimeoutException => e
@@ -67,7 +67,7 @@ Requirements
 ============
 
 SystemTimer only works on UNIX platforms (Mac OS X, Linux, Solaris, BSD, ...).
-You can install the gem on Microsoft Windows, but you will only get 
+You can install the gem on Microsoft Windows, but you will only get
 a convenience shell wrapping a simple call to timeout.rb under the cover.
 
 Install
@@ -123,14 +123,14 @@ David Vollbracht and Philippe Hanrigou pair programmed an alternative
 implementation based on system timers (the +SIGALRM+ POSIX signal):
 This design guarantees proper timeout behavior even when crossing-boundaries and accessing
 system/external resources. Special care has been taken to interfere as little as
-possible with other processes that might also rely on +SIGALRM+, 
+possible with other processes that might also rely on +SIGALRM+,
 in particular MySQL.
 
 This implementation is not intended to be drop-in replacement to
-timeout.rb, just a way to wrap sensitive call to system resources.   
+timeout.rb, just a way to wrap sensitive call to system resources.
 
-You can find more details on SystemTimer and how to use it 
-at http://ph7spot.com/articles/system_timer 
+You can find more details on SystemTimer and how to use it
+at http://ph7spot.com/articles/system_timer
 
 License
 =======
@@ -186,9 +186,9 @@ You can redistribute it and/or modify it under either the terms of the GPL
      files under the ./missing directory.  See each file for the copying
      condition.
 
-  5. The scripts and library files supplied as input to or produced as 
+  5. The scripts and library files supplied as input to or produced as
      output from the software do not automatically fall under the
-     copyright of the software, but belong to whomever generated them, 
+     copyright of the software, but belong to whomever generated them,
      and may be sold commercially, and may be aggregated with this
      software.
 
