@@ -1,3 +1,10 @@
+=== 1.2.4 / 2011-06-11
+
+  - Renamed the gem for seemless bundler integration:
+     SystemTimer -> system_timer
+     Per https://github.com/ph7/system-timer/issues/16
+     (Suggested by David Heinemeier Hansson)
+
 === 1.2.3 / 2011-03-19
 
   - Fix for RubyGems 1.6

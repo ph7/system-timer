@@ -13,9 +13,10 @@ CLEAN.include '**/*.bundle'
 CLOBBER.include '**/*.log'
 CLOBBER.include '**/Makefile'
 CLOBBER.include '**/extconf.h'
+CLOBBER.include 'pkk/*'
 
-SYSTEM_TIMER_VERSION = "1.2.3"
-SYSTEM_TIMER_GEM_NAME = "SystemTimer"
+SYSTEM_TIMER_VERSION = "1.2.4"
+SYSTEM_TIMER_GEM_NAME = "system_timer"
 
 desc 'Default: run unit tests.'
 task :default => :test
@@ -33,10 +34,10 @@ Rake::TestTask.new(:test) do |t|
 end
 task :test => 'ext/system_timer/libsystem_timer_native.so'
 
-desc 'Generate documentation for SystemTimer.'
+desc 'Generate documentation for System Timer.'
 Rake::RDocTask.new(:rdoc) do |rdoc|
   rdoc.rdoc_dir = 'rdoc'
-  rdoc.title    = 'SystemTimer'
+  rdoc.title    = 'System Timer'
   rdoc.options << '--line-numbers' << '--inline-source'
   rdoc.rdoc_files.include('README')
   rdoc.rdoc_files.include('lib/**/*.rb')
@@ -76,7 +77,7 @@ specification = Gem::Specification.new do |s|
     s.extensions = ["ext/system_timer/extconf.rb"]
   end
   s.require_path = "lib"
-  s.rdoc_options << '--title' << 'SystemTimer' << '--main' << 'README' << '--line-numbers'
+  s.rdoc_options << '--title' << 'System Timer' << '--main' << 'README' << '--line-numbers'
   s.has_rdoc = true
   s.extra_rdoc_files = ['README']
 	s.test_file = "test/all_tests.rb"
