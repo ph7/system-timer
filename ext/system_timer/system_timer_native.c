@@ -15,15 +15,15 @@
 #define MICRO_SECONDS 1000000.0
 #define MINIMUM_TIMER_INTERVAL_IN_SECONDS 0.2
 
-VALUE rb_cSystemTimer;
+static VALUE rb_cSystemTimer;
 
 // Ignore most of this for Rubinius
 #ifndef RUBINIUS
 
-sigset_t original_mask;
-sigset_t sigalarm_mask;
-struct sigaction original_signal_handler;
-struct itimerval original_timer_interval;
+static sigset_t original_mask;
+static sigset_t sigalarm_mask;
+static struct sigaction original_signal_handler;
+static struct itimerval original_timer_interval;
 static int debug_enabled = 0;
 
 static void clear_pending_sigalrm_for_ruby_threads();
